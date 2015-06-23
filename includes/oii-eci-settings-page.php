@@ -71,9 +71,9 @@ class OII_ECI_Settings_Page {
         
         // Create Settings Field on Section
         add_settings_field(
-            "regex",
-            "Regular Expression",
-            array($this, "regex_callback"),
+            "format",
+            "External Content Format",
+            array($this, "format_callback"),
             self::$_menu_slug, 
             "setting_section_id"
         );
@@ -104,9 +104,9 @@ class OII_ECI_Settings_Page {
         if( isset($input["replace"]) AND isset($input["with"]))
         {
             foreach($input["replace"] AS $key => $replace)
-                $new_input["regex"][] = array(
-                    "replace" => htmlspecialchars(trim($replace)),
-                    "with" => htmlspecialchars(trim($input["with"][$key]))
+                $new_input["format"][] = array(
+                    "replace" => esc_html(trim($replace)),
+                    "with" => esc_html(trim($input["with"][$key]))
                 );
         }
         
@@ -127,11 +127,11 @@ class OII_ECI_Settings_Page {
      * RegEx Callback
      * Description
      */
-    public function regex_callback()
+    public function format_callback()
     {
-        $regex = (is_array($this->_option["regex"])) ? $this->_option["regex"] : array(array());
+        $format = (is_array($this->_option["format"])) ? $this->_option["format"] : array(array());
         
-        foreach($regex AS $key => $expression)
+        foreach($format AS $key => $expression)
         {
             echo "<div class='regex'" . ($key ? " style='margin-top: 15px'" : "") . ">";
                 echo "Replace <input type='text' class='form-element regex-replace' name='" . self::$_option_name . "[replace][]' value='" . $expression["replace"] . "' /> with <input type='text' class='form-element regex-with' name='" . self::$_option_name . "[with][]' value='" . $expression["with"] . "' />";

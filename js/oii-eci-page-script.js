@@ -123,7 +123,7 @@ jQuery(document).ready(function() {
             // Start Code Input
             jQuery('<div />').attr({class: 'col span_3_of_12'})
                 .append(
-                    jQuery('<input />').attr({type: 'text', name: 'external-content-start-code[]'})
+                    jQuery('<input />').attr({type: 'text', name: 'external-content-start[]'})
                 )
                 .appendTo(code_wrap)
             
@@ -137,7 +137,7 @@ jQuery(document).ready(function() {
             // End Code Input
             jQuery('<div />').attr({class: 'col span_3_of_12'})
                 .append(
-                    jQuery('<input />').attr({type: 'text', name: 'external-content-end-code[]'})
+                    jQuery('<input />').attr({type: 'text', name: 'external-content-end[]'})
                 )
                 .appendTo(code_wrap)
                 

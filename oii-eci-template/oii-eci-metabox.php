@@ -30,11 +30,11 @@
         <div class="section group external-content-item">
             <div class="col span_2_of_12"><label>Start Code</label></div>
             <div class="col span_3_of_12">
-                <input type="text" name="external-content-start-code[]" value="<?php echo $external_content->start_code; ?>" />
+                <input type="text" name="external-content-start[]" value="<?php echo $external_content->start; ?>" />
             </div>
             <div class="col span_2_of_12"><label>End Code</label></div>
             <div class="col span_3_of_12">
-                <input type="text" name="external-content-end-code[]" value="<?php echo $external_content->end_code; ?>" />
+                <input type="text" name="external-content-end[]" value="<?php echo $external_content->end; ?>" />
             </div>
             <div class="col span_2_of_12">
                 <a href="#" class="refresh-external-content"><span class="dashicons dashicons-update"></span></a>

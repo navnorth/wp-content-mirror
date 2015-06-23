@@ -100,7 +100,9 @@ class OII_ECI_Metabox {
         
         require_once(OII_ECI_PATH . "classes/oii-eci-scraper.php");
         
-        $d = new OII_ECI_Scraper();
+        $scraper = new OII_ECI_Scraper();
+        
+        $scraper->run();
         
         include_once(OII_ECI_PATH . "oii-eci-template/oii-eci-metabox.php");
     }
@@ -115,7 +117,7 @@ class OII_ECI_Metabox {
     {
         if("page" == $post->post_type)
         {
-            if(isset($_POST["external-content-url"]) AND isset($_POST["external-content-header"]) AND isset($_POST["external-content-start-code"]) AND isset($_POST["external-content-end-code"]))
+            if(isset($_POST["external-content-url"]) AND isset($_POST["external-content-header"]) AND isset($_POST["external-content-start"]) AND isset($_POST["external-content-end"]))
             {
                 require_once(OII_ECI_PATH . "classes/oii-eci-external-content.php");
                 
@@ -129,31 +131,33 @@ class OII_ECI_Metabox {
                     $external_content->header = sanitize_text_field($_REQUEST["external-content-header"][$key]);
                     $external_content->url = sanitize_text_field($content);
                     
-                    $external_content->start_code = esc_html($_REQUEST["external-content-start-code"][$key]);
-                    $external_content->end_code = esc_html($_REQUEST["external-content-end-code"][$key]);
+                    $external_content->start = esc_html($_REQUEST["external-content-start"][$key]);
+                    $external_content->end = esc_html($_REQUEST["external-content-end"][$key]);
                     
-                    $external_contents[] = get_object_vars($external_content);
+                    $external_contents[] = $external_content->as_postmeta();
                 }
                 
                 update_post_meta($id, self::$meta_key, $external_contents);
             }
         }
     }
-    
-    public function get_external_contents($id)
+    /**
+     * Get External Contents
+     * Description
+     *
+     * @param integer $page_id The page ID.
+     *
+     * @return array
+     */
+    public function get_external_contents($page_id)
     {
         require_once(OII_ECI_PATH . "classes/oii-eci-external-content.php");
         
-        $meta_content = get_post_meta($id, self::$meta_key, TRUE);
+        $external_contents = OII_ECI_External_Content::get_by_post_id($page_id);
         
-        $external_contents = array();
+        if(count($external_contents))
+            return $external_contents;
         
-        if(is_array($meta_content) == FALSE)
-            array_push($external_contents, new stdClass());
-        else
-            foreach($meta_content AS $key => $content)
-                array_push($external_contents, new OII_ECI_External_Content($content));
-                
-        return $external_contents;
+        return array(new stdClass());
     }
 }
