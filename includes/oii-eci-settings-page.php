@@ -153,7 +153,7 @@ class OII_ECI_Settings_Page {
         echo "<select id='schedule' class='form-element' name='" . self::$option_name ."[schedule]'>";
         
         echo "<option value=''>&nbsp;</option>";
-        foreach(array("hourly", "daily", "twice_daily") AS $schedule)
+        foreach(array("hourly", "twice_daily", "daily") AS $schedule)
             echo "<option value='" . $schedule . "'" . ($this->_option["schedule"] == $schedule ? " selected" : "" ) . ">" . ucwords(str_replace("_", " ", $schedule)) . "</option>";
         
         echo "</select>";

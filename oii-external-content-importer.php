@@ -16,6 +16,7 @@ define("OII_ECI_EXTERNAL_TABLE", $wpdb->prefix . "oii_external_contents");
 
 include_once(OII_ECI_PATH . "/includes/oii-eci-settings-page.php");
 include_once(OII_ECI_PATH . "/includes/oii-eci-metabox.php");
+include_once(OII_ECI_PATH . "/classes/oii-eci-external-content.php");
 
 if(is_admin())
 {
@@ -65,17 +66,14 @@ function oii_eci_settings_link( $links ) {
  *
  */
 function get_external_content($post_id) {
-    global $wpdb;
     $content = "";
-    $query = $wpdb->prepare("SELECT * FROM " . OII_ECI_EXTERNAL_TABLE ." WHERE post_id=%d", $post_id);
-    $rows = $wpdb->get_results($query, OBJECT);
-    $i=0;
+    
+    $rows = OII_ECI_External_Content::get_by_post_id($post_id);
+    
     foreach($rows as $row){
-	$i++;
-	$content .= "<a id='ext-content-".$i."'></a>";
-	$content .= $row->content;
-	$content .= "<!-- " . $row->date . " : " . $row->url . " -->";
+	$content .= $row->output_content();
     }
+    
     return $content;
 }
 
