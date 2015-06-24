@@ -5,7 +5,7 @@ class OII_ECI_Settings_Page {
     
     private static $_menu_slug = "oii-eci-admin";
     
-    public static $_option_name = "oii_eci_settings";
+    public static $option_name = "oii_eci_settings";
     private static $_option_group = "oii_eci_opotion_group";
     
     private static $_setting_title = "External Content Importer";
@@ -39,7 +39,7 @@ class OII_ECI_Settings_Page {
      */
     public function create_admin_page()
     {
-        $this->_option = get_option(self::$_option_name); ?>
+        $this->_option = get_option(self::$option_name); ?>
         <div class="wrap">
             <h2><?php echo self::$_setting_title; ?></h2>
             <form method="post" action="options.php">
@@ -57,7 +57,7 @@ class OII_ECI_Settings_Page {
     {
         register_setting(
             self::$_option_group,
-            self::$_option_name,
+            self::$option_name,
             array($this, "sanitize")
         );
         
@@ -134,10 +134,10 @@ class OII_ECI_Settings_Page {
         foreach($format AS $key => $expression)
         {
             echo "<div class='regex'" . ($key ? " style='margin-top: 15px'" : "") . ">";
-                echo "Replace <input type='text' class='form-element regex-replace' name='" . self::$_option_name . "[replace][]' value='" . $expression["replace"] . "' /> with <input type='text' class='form-element regex-with' name='" . self::$_option_name . "[with][]' value='" . $expression["with"] . "' />";
+                echo "Replace <input type='text' class='form-element regex-replace' name='" . self::$option_name . "[replace][]' value='" . $expression["replace"] . "' /> with <input type='text' class='form-element regex-with' name='" . self::$option_name . "[with][]' value='" . $expression["with"] . "' />";
             
             if($key == 0)
-                echo "<button type='button' data-name='" . self::$_option_name . "' id='oii-eci-new-regex' class='button'>New</button>";
+                echo "<button type='button' data-name='" . self::$option_name . "' id='oii-eci-new-regex' class='button'>New</button>";
             else
                 echo "<a href='#' style='color: #555; text-decoration: none'><span class='delete-regex dashicons dashicons-trash' style='vertical-align: text-bottom'></span></a>";
                 
@@ -150,7 +150,7 @@ class OII_ECI_Settings_Page {
      */
     public function schedule_callback()
     {
-        echo "<select id='schedule' class='form-element' name='" . self::$_option_name ."[schedule]'>";
+        echo "<select id='schedule' class='form-element' name='" . self::$option_name ."[schedule]'>";
         
         echo "<option value=''>&nbsp;</option>";
         foreach(array("hourly", "daily", "twice_daily") AS $schedule)

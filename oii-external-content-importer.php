@@ -51,10 +51,16 @@ function activate_oii_eci_plugin()
  *
  */
 
-function myplugin_settings_link( $links ) {
+function oii_eci_settings_link( $links ) {
     $url = get_admin_url() . 'options-general.php?page=oii-eci-admin';
     $settings_link = '<a href="' . $url . '">' . __('Settings', OII_ECI_PLUGIN_DOMAIN) . '</a>';
     array_unshift( $links, $settings_link );
     return $links;
 }
- add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'myplugin_settings_link');
+ add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'oii_eci_settings_link');
+ 
+function oii_eci_content_filter($content){
+    $new_content = "<p>I did it!</p>";
+    return $content.$new_content;
+}
+add_filter( 'the_content', oii_eci_content_filter );

@@ -2,6 +2,43 @@
 class OII_ECI_External_Content {    
     public static $table = "oii_external_contents";
     
+    private static $_html_paired_tags = array(
+        "a", "abbr", "address", "article", "aside", "audio",
+        "b", "bdi", "bdo", "blockquote", "body", "button",
+        "canvas", "caption", "cite", "code", "colgroup",
+        "datalist", "dd", "del", "details", "dfn", "dialog", "div", "dl", "dt",
+        "em",
+        "fieldset", "figcaption", "figure", "footer", "form",
+        "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "html",
+        "i", "iframe", "ins",
+        "kbd",
+        "label", "legend", "li",
+        "main", "map", "mark", "menu", "menuitem", "meter",
+        "nav", "noscript",
+        "object", "ol", "optgroup", "option", "output",
+        "p", "pre", "progress",
+        "q",
+        "rp", "rt", "ruby",
+        "s", "samp", "script", "section", "select", "small", "span", "strong", "style", "sub", "summary", "sup",
+        "table", "tbody", "td", "textarea", "tfoot", "th", "thead", "time", "title", "tr",
+        "u", "ul", "var", "video", "wbr"
+    );
+    
+    private static $_html_unpaired_tags = array(
+        "area",
+        "base", "br",
+        "col",
+        "embed",
+        "hr",
+        "img", "input",
+        "keygen",
+        "link",
+        "meta",
+        "param",
+        "source",
+        "track"
+    );
+    
     public $id = 0;
     
     public $post_id = 0;
@@ -65,7 +102,10 @@ class OII_ECI_External_Content {
             return $external_contents;
         
         foreach($post_meta AS $meta)
+        {
+            $meta = array_merge($meta, array("post_id" => $post_id));
             array_push($external_contents, new self($meta));
+        }
         
         return $external_contents;
     }
@@ -143,84 +183,251 @@ class OII_ECI_External_Content {
         
         $html = mb_convert_encoding($html, "HTML-ENTITIES", "UTF-8");
         
-        $_this_start = htmlspecialchars_decode($this->start);
-        $_this_end = htmlspecialchars_decode($this->end);
+        $open_tag = htmlspecialchars_decode($this->start);
+        $close_tag = htmlspecialchars_decode($this->end);
         
         // Extract by Comment Tag
-        if($this->_is_html_comment($_this_start) AND $this->_is_html_comment($_this_end))
+        if($this->_is_html_comment($open_tag) AND $this->_is_html_comment($close_tag))
         {
-            $start = strpos($html, $_this_start);
+            $start = strpos($html, $open_tag);
             
             if($start === FALSE)
                 return NULL;
             
-            $start = $start + strlen($_this_start);
+            $start = $start + strlen($open_tag);
             
             $sub = substr($html, $start);
-            $stop = strpos($sub, $_this_end);
+            $stop = strpos($sub, $close_tag);
             
             if($stop === FALSE)
                 return NULL;
             
-            return substr($html, $start, $stop);
+            return $this->_apply_format(substr($html, $start, $stop));
         }
+        
         // Extract by HTML Tag 
-        else if($this->_is_html_tag($_this_start) AND $this->_is_html_tag($_this_end))
+        else if($this->_is_html_tag($open_tag) AND $this->_is_html_tag($close_tag))
         {
-            $start = strpos($html, $_this_start);
+            $open_offset = strpos($html, $open_tag);
             
-            if($start === FALSE)
+            if($open_offset === FALSE)
                 return NULL;
             
-            $start = $start + strlen($_this_start);
+            $open_offset = $open_offset + strlen($open_tag);
             
-            $open = $close = 0;
+            $open_tag_count = $close_tag_count = 0;
             
-            $sub = substr($html, $start);
+            $sub = substr($html, $open_offset);
             
             // Todo: Evaluate End Code
             
-            $stop = strpos($sub, $_this_end) + strlen($_this_end);
-            $close = 1;
+            $close_offset = strpos($sub, $close_tag) + strlen($close_tag);
+            $close_tag_count = 1;
             
-            $pattern = '/(<' . $this->_tag_name($_this_start) . ')/';
-            preg_match_all($pattern, substr($sub, 0, $stop), $matches);
+            $pattern = '/(<' . $this->_tag_name($open_tag) . ')/';
+            preg_match_all($pattern, substr($sub, 0, $close_offset), $matches);
             
-            $open = $open + count($matches[0]);
+            $open_tag_count = $open_tag_count + count($matches[0]);
             
-            $_start = $_stop = $stop;
+            $_open_offset = $_close_offset = $close_offset;
             
-            while($open > $close)
+            while($open_tag_count > $close_tag_count)
             {
-                $_stop = $_stop + strpos(substr($sub, $_start), $_this_end) + strlen($_this_end);
+                $_close_offset = $_close_offset + strpos(substr($sub, $_open_offset), $close_tag) + strlen($close_tag);
                 
-                preg_match_all($pattern, substr($sub, $_start, $_stop), $matches);
+                preg_match_all($pattern, substr($sub, $_open_offset, $_close_offset), $matches);
                 
-                $open = $open + count($matches[0]);
-                $_start = $_stop;
+                $open_tag_count = $open_tag_count + count($matches[0]);
+                $_open_offset = $_close_offset;
                 
-                $close++;
+                $close_tag_count++;
             }
             
-            $_stop = $_stop - strlen($_this_end);
+            $_close_offset = $_close_offset - strlen($close_tag);
             
-            return substr($sub, 0, $_stop);
+            return $this->_apply_format(substr($sub, 0, $_close_offset));
         }
         
         return NULL;
     }
     /**
-     * Format
-     * Format extracted Content
+     * Apply Format
+     * Format in extracted content.
      *
      * @param string $content The raw content.
      * 
-     * return string The formatted content.
+     * @return string The formatted content.
      */
-    public function format($content = NULL)
+    private function _apply_format($content = NULL)
     {
+        require_once(OII_ECI_PATH . "includes/oii-eci-settings-page.php");
+        $option = get_option(OII_ECI_Settings_Page::$option_name);
         
+        foreach($option["format"] AS $format)
+            $content = $this->_change_content($content, $format["replace"], $format["with"]);
         
+        return $content;
+    }
+    /**
+     * Change Content
+     * Description
+     *
+     * @param string $content The content.
+     * @param string $tag The tag.
+     * @param string $with
+     *
+     * @return string
+     */
+    private function _change_content($content = NULL, $tag = NULL, $with = NULL)
+    {
+        $tag = htmlspecialchars_decode($tag);
+        $with = htmlspecialchars_decode($with);
+        
+        do
+        {
+            $o = $this->_get_tag_offset($content, $tag);
+            
+            if(array_key_exists("close", $o))
+            {
+                // <span class="content">
+                $_w_o = $_w_c = $with;
+                
+                if($this->_is_html_tag($with))
+                {
+                    $name = $this->_tag_name($with);
+                    
+                    if(in_array($name, self::$_html_paired_tags) AND $this->_is_tag_close($with) == FALSE)
+                        $_w_c = "</" . $name . ">";
+                }
+                
+                $content = substr_replace($content, $_w_c, $o["close"]["start"], $o["close"]["boundary"]);
+		$content = substr_replace($content, $_w_o, $o["open"]["start"], $o["open"]["boundary"]);
+            }
+            else
+            {
+                // <!-- Comment -->, <hr>
+                $_w = $with;
+                
+                if($this->_is_html_tag($with))
+                {
+                    $name = $this->_tag_name($with);
+                    
+                    if(in_array($name, self::$_html_paired_tags) AND $this->_is_tag_close($with) == FALSE)
+                        $_w = $with . "</" . $name . ">";
+                }
+                
+                $content = substr_replace($content, $_w, $o["open"]["start"], $o["open"]["boundary"]);
+            }
+            
+            $again = (strpos($content, $tag) === FALSE) ? FALSE : TRUE;
+        }
+        while($again);
+        
+        return $content;
+    }
+    /**
+     * Get Tag Offset
+     * Description
+     *
+     * @param string $content The content.
+     * @param string $tag The tag.
+     *
+     * @return array The offsets.
+     */
+    private function _get_tag_offset($content, $tag)
+    {
+        // Get Opening Tag Offsets
+        $o = array(
+            "open" => array(
+                "start" => strpos($content, $tag),
+                "boundary" => strlen($tag)
+            )
+        );
+        
+        if($this->_is_html_tag($tag))
+        {
+            $name = $this->_tag_name($tag);
+            
+            // Opening Tag Has Closing Tag
+            if(in_array($name, self::$_html_paired_tags))
+            {
+                // Create Closing Code
+                $close_tag = "</" . $name . ">";
+                
+                $open_tag_count = $close_tag_count = 0;
+                
+                $sub = substr($content, $o["open"]["start"]);
+                
+                $close_offset = strpos($sub, $close_tag) + strlen($close_tag);
+                $close_tag_count++;
+                
+                /**
+                 * Find Open Tag Within Found Closing Tag
+                 * @code begin
+                 */
+                $pattern = '/(<' . $name . ')/';
+                preg_match_all($pattern, substr($sub, 0, $close_offset), $matches);
+                $open_tag_count = $open_tag_count + count($matches[0]);
+                /**
+                 * Find Open Tag Within Found Closing Tag
+                 * @code end
+                 */
+                
+                $_open_offset = $_close_offset = $close_offset;
+                
+                while($open_tag_count > $close_tag_count)
+                {
+                    $_close_offset = $_close_offset + strpos(substr($sub, $_open_offset), $close_tag) + strlen($close_tag);
+                    preg_match_all($pattern, substr($sub, $_open_offset, $_close_offset), $matches);
+                    $open_tag_count = $open_tag_count + count($matches[0]);
+                    
+                    $_open_offset = $_close_offset;
+                    
+                    $close_tag_count++;
+                }
+                
+                // Insert Close Tag Offsets
+                $o["close"] = array(
+                    "start" => ($o["open"]["start"] + $_close_offset) - strlen($close_tag),
+                    "boundary" => strlen($close_tag)
+                );
+            }
+        }
+        
+        return $o;
+    }
+    /**
+     * Display Content
+     * Desctiption
+     *
+     * @return string The content.
+     */
+    public function output_content()
+    {
+        // Section Header
+        $content = ($this->header) ? "<h2>" . $this->header . "</h2>" : NULL;
+        // Section Anchor
+        $content .= "<a href='#extcontent" . $this->order . "'></a>";
+        
+        if($this->content == NULL)
+        {
+            global $wpdb;
+            
+            $sql = $wpdb->prepare("SELECT * FROM `" . $wpdb->prefix . self::$table . "` WHERE `post_id` = %d AND `order` = %d", $this->post_id, $this->order);
+            $row = $wpdb->get_row($sql);
+            
+            if($row)
+            {
+                $this->content = $row->content;
+                $this->date = $row->date;
+                $this->url = $row->url;
+            }
+        }
+        // Section Content
+        $content .= $this->content;
+        
+        // Section Comment
+        $content .= "<!-- Copied: " . date("m/d/Y H:i:s", strtotime($this->date)) . "-->\n<!-- URL: " . $this->url . " -->";
         return $content;
     }
     /**
@@ -252,7 +459,15 @@ class OII_ECI_External_Content {
         $pattern = "/<[^!][^<>]+>/";
         preg_match($pattern, $tag, $matches);
         
-        return (boolean) count($matches);
+        if(count($matches) == 0)
+            return FALSE;
+        
+        $name = $this->_tag_name($tag);
+        
+        if(in_array($name, self::$_html_paired_tags) OR in_array($name, self::$_html_unpaired_tags))
+            return TRUE;
+        
+        return FALSE;
     }
     /**
      * Is HTML Comment
@@ -265,6 +480,19 @@ class OII_ECI_External_Content {
     private function _is_html_comment($tag)
     {
         $pattern = "/<!--(.*?)-->/";
+        preg_match($pattern, $tag, $matches);
+        
+        return (boolean) count($matches);
+    }
+    /**
+     * Is Tag Close
+     * 
+     */
+    private function _is_tag_close($tag)
+    {
+        $name = $this->_tag_name($tag);
+        $pattern = '/\/' . $name . '>$/';
+        
         preg_match($pattern, $tag, $matches);
         
         return (boolean) count($matches);
