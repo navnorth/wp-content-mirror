@@ -1,7 +1,8 @@
 <?php
-
 class OII_ECI_Settings_Page {
     private $_option;
+    
+    public static $cron_action_hook = "external_content_importer_cron";
     
     private static $_menu_slug = "oii-eci-admin";
     
@@ -25,13 +26,15 @@ class OII_ECI_Settings_Page {
      */
     public function add_plugin_page()
     {
-        add_options_page(
+        $hook = add_options_page(
             "Settings Admin", // page_title
             self::$_setting_title, // menu_title
             "manage_options", // capability
             self::$_menu_slug, // menu_slug
             array($this, "create_admin_page") // callback
         );
+        
+        add_action("load-" . $hook, array($this, "setup_cron"));
     }
     /**
      * Create Admin Page
@@ -153,10 +156,43 @@ class OII_ECI_Settings_Page {
         echo "<select id='schedule' class='form-element' name='" . self::$option_name ."[schedule]'>";
         
         echo "<option value=''>&nbsp;</option>";
-        foreach(array("hourly", "twice_daily", "daily") AS $schedule)
-            echo "<option value='" . $schedule . "'" . ($this->_option["schedule"] == $schedule ? " selected" : "" ) . ">" . ucwords(str_replace("_", " ", $schedule)) . "</option>";
+        foreach(array("hourly" => "Hourly", "twicedaily" => "Twice Daily", "daily" => "Daily") AS $key => $schedule)
+            echo "<option value='" . $key . "'" . ($this->_option["schedule"] == $key ? " selected" : "" ) . ">" . $schedule . "</option>";
         
         echo "</select>";
         echo "<p class='description'>The schedule for updating content.</p>";
+    }
+    /**
+     * Setup Cron
+     * Description
+     */
+    public function setup_cron()
+    {
+        if(isset($_GET["settings-updated"]) && $_GET["settings-updated"])
+        {
+            $option = get_option(self::$option_name);
+            
+            if($option["schedule"])
+            {
+                $timestamp = wp_next_scheduled(self::$cron_action_hook);
+                
+                // Schedule
+                if($timestamp == FALSE)
+                {
+                    wp_schedule_event(time() + 2 * 60, $option["schedule"], self::$cron_action_hook);
+                }
+                else
+                {
+                    // Re-schedule
+                    $schedule = wp_get_schedule(self::$cron_action_hook);
+                    
+                    if(strcmp($schedule, $option["schedule"]))
+                    {
+                        wp_unschedule_event($timestamp, self::$cron_action_hook);
+                        wp_reschedule_event(time() + 2 * 60, $option["schedule"], self::$cron_action_hook);
+                    }
+                }
+            }
+        }
     }
 }

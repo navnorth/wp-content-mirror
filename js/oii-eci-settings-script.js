@@ -44,6 +44,7 @@ jQuery(document).ready(function() {
         
         var replace = jQuery('<input />').attr({
             type: 'text',
+            class: 'form-element regex-replace',
             name: name + '[replace][]'
         })
         

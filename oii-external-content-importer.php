@@ -17,6 +17,7 @@ define("OII_ECI_EXTERNAL_TABLE", $wpdb->prefix . "oii_external_contents");
 include_once(OII_ECI_PATH . "/includes/oii-eci-settings-page.php");
 include_once(OII_ECI_PATH . "/includes/oii-eci-metabox.php");
 include_once(OII_ECI_PATH . "/classes/oii-eci-external-content.php");
+include_once(OII_ECI_PATH . "/classes/oii-eci-scraper.php");
 
 if(is_admin())
 {
@@ -25,6 +26,7 @@ if(is_admin())
 }
 
 register_activation_hook(__FILE__, "activate_oii_eci_plugin");
+register_deactivation_hook(__FILE__, "deactivate_oii_eci_plugin");
 /**
  * Activate OII External Content Importer Plugin
  *
@@ -44,6 +46,14 @@ function activate_oii_eci_plugin()
             PRIMARY KEY (`id`)
           ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;";
 	dbDelta($sql);
+}
+
+/**
+ * Deactivate OII External Content Importer Plugin
+ */
+function deactivate_oii_eci_plugin()
+{
+    wp_clear_scheduled_hook(OII_ECI_Settings_Page::$cron_action_hook);
 }
 
 /**
@@ -88,3 +98,14 @@ function oii_eci_content_filter($content){
     return $content.$new_content;
 }
 add_filter( 'the_content', oii_eci_content_filter );
+
+/**
+ * External Content Importer Cron Job
+ * Description
+ */
+function external_content_importer_cron_job()
+{
+    OII_ECI_Scraper::run();
+}
+// External Content Importer Cron Job Hook
+add_action(OII_ECI_Settings_Page::$cron_action_hook, "external_content_importer_cron_job");

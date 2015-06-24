@@ -98,10 +98,8 @@ class OII_ECI_Metabox {
          * @code end
          */
         
-        require_once(OII_ECI_PATH . "classes/oii-eci-scraper.php");
-        
-        $scraper = new OII_ECI_Scraper();
-        $scraper->run();
+        include_once(OII_ECI_PATH . "/classes/oii-eci-scraper.php");
+        OII_ECI_Scraper::run();
         
         include_once(OII_ECI_PATH . "oii-eci-template/oii-eci-metabox.php");
     }

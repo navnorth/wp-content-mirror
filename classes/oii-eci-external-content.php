@@ -154,17 +154,18 @@ class OII_ECI_External_Content {
         
         $sql = $wpdb->prepare("SELECT `id` FROM `" . $wpdb->prefix . self::$table . "` WHERE `post_id` = %d AND `order` = %d", $this->post_id, $order);
         
+        $this->content = $this->extract();
+        
         if($wpdb->get_row($sql))
         {
             // Update
+            $sql = $wpdb->prepare("UPDATE `" . $wpdb->prefix . self::$table . "` SET `content` = %s, `url` = %s, `date` = NOW() WHERE `post_id` = %d AND `order` = %d", $this->content, $this->url, $this->post_id, $order);
+            $wpdb->query($sql);
         }
         else
         {
-            $this->content = $this->extract();
-            
             // Insert
             $sql = $wpdb->prepare("INSERT INTO `" . $wpdb->prefix . self::$table . "` (`post_id`, `order`, `content`, `url`, `date`) VALUES (%d, %d, %s, %s, NOW())", $this->post_id, $order, $this->content, $this->url);
-        
             $wpdb->query($sql);
         }
     }
@@ -182,6 +183,7 @@ class OII_ECI_External_Content {
             return NULL;
         
         $html = mb_convert_encoding($html, "HTML-ENTITIES", "UTF-8");
+        $html = trim(preg_replace('/(\\n)+/', NULL, $html));
         
         $open_tag = htmlspecialchars_decode($this->start);
         $close_tag = htmlspecialchars_decode($this->end);
@@ -283,7 +285,9 @@ class OII_ECI_External_Content {
         $tag = htmlspecialchars_decode($tag);
         $with = htmlspecialchars_decode($with);
         
-        do
+        $again = (strpos($content, $tag) === FALSE) ? FALSE : TRUE;
+        
+        while($again)
         {
             $o = $this->_get_tag_offset($content, $tag);
             
@@ -321,7 +325,6 @@ class OII_ECI_External_Content {
             
             $again = (strpos($content, $tag) === FALSE) ? FALSE : TRUE;
         }
-        while($again);
         
         return $content;
     }
@@ -407,7 +410,7 @@ class OII_ECI_External_Content {
         // Section Header
         $content = ($this->header) ? "<h2>" . $this->header . "</h2>" : NULL;
         // Section Anchor
-        $content .= "<a id='ext-content-" . $this->order . "'></a>";
+        $content .= "<a href='#extcontent" . $this->order . "'></a>";
         
         if($this->content == NULL)
         {
@@ -479,7 +482,7 @@ class OII_ECI_External_Content {
      */
     private function _is_html_comment($tag)
     {
-        $pattern = "/<!--(.*?)-->/";
+        $pattern = "/^<!--(.*?)-->/";
         preg_match($pattern, $tag, $matches);
         
         return (boolean) count($matches);
