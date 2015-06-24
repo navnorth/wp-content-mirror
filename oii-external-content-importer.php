@@ -12,6 +12,7 @@ define("OII_ECI_PATH", plugin_dir_path(__FILE__));
 define("OII_ECI_URL", plugin_dir_url(__FILE__));
 define("OII_ECI_PLUGIN_DOMAIN", "oii-external-content-importer");
 define("OII_ECI_TEMPLATE_DIRECTORY", "oii-eci-template");
+define("OII_ECI_EXTERNAL_TABLE", $wpdb->prefix . "oii_external_contents");
 
 include_once(OII_ECI_PATH . "/includes/oii-eci-settings-page.php");
 include_once(OII_ECI_PATH . "/includes/oii-eci-metabox.php");
@@ -32,8 +33,7 @@ function activate_oii_eci_plugin()
 {
     //creating custom external contents table
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    $table_name = $wpdb->prefix . "oii_external_contents";
-    $sql = "CREATE TABLE IF NOT EXISTS `" . $table_name . "` (
+    $sql = "CREATE TABLE IF NOT EXISTS `" . OII_ECI_EXTERNAL_TABLE . "` (
             `id` bigint(20) NOT NULL AUTO_INCREMENT,
             `post_id` bigint(20) NOT NULL DEFAULT '0',
             `order` tinyint(3) NOT NULL,
@@ -58,9 +58,35 @@ function oii_eci_settings_link( $links ) {
     return $links;
 }
  add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'oii_eci_settings_link');
- 
+
+/**
+ *
+ * Get external content related of the page
+ *
+ */
+function get_external_content($post_id) {
+    global $wpdb;
+    $content = "";
+    $query = $wpdb->prepare("SELECT * FROM " . OII_ECI_EXTERNAL_TABLE ." WHERE post_id=%d", $post_id);
+    $rows = $wpdb->get_results($query, OBJECT);
+    $i=0;
+    foreach($rows as $row){
+	$i++;
+	$content .= "<a id='ext-content-".$i."'></a>";
+	$content .= $row->content;
+	$content .= "<!-- " . $row->date . " : " . $row->url . " -->";
+    }
+    return $content;
+}
+
+/**
+ *
+ * Display external content at the bottom of page content
+ *
+ */
 function oii_eci_content_filter($content){
-    $new_content = "<p>I did it!</p>";
+    global $post;
+    $new_content = get_external_content($post->ID);
     return $content.$new_content;
 }
 add_filter( 'the_content', oii_eci_content_filter );
