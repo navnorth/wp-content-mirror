@@ -179,7 +179,7 @@ class OII_ECI_Settings_Page {
                 // Schedule
                 if($timestamp == FALSE)
                 {
-                    wp_schedule_event(time() + 2 * 60, $option["schedule"], self::$cron_action_hook);
+                    wp_schedule_event(time(), $option["schedule"], self::$cron_action_hook);
                 }
                 else
                 {
@@ -189,7 +189,7 @@ class OII_ECI_Settings_Page {
                     if(strcmp($schedule, $option["schedule"]))
                     {
                         wp_unschedule_event($timestamp, self::$cron_action_hook);
-                        wp_reschedule_event(time() + 2 * 60, $option["schedule"], self::$cron_action_hook);
+                        wp_reschedule_event(time(), $option["schedule"], self::$cron_action_hook);
                     }
                 }
             }

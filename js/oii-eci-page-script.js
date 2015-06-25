@@ -65,6 +65,13 @@ jQuery(document).ready(function() {
     jQuery('#new-external-content').click(function() {
         var item_wrap = jQuery('<div />').attr({class: 'external-content-item-wrap'})
         
+            jQuery('<input />').attr({
+                    type: 'hidden',
+                    name: 'external-content-id[]',
+                    value: 0
+                })
+                .appendTo(item_wrap)
+                
         var text_wrap = jQuery('<div />').attr({class: 'section group external-content-item'})
             // URL Label 
             jQuery('<div />').attr({class: 'col span_2_of_12'})
@@ -137,21 +144,31 @@ jQuery(document).ready(function() {
             // End Code Input
             jQuery('<div />').attr({class: 'col span_3_of_12'})
                 .append(
-                    jQuery('<input />').attr({type: 'text', name: 'external-content-end[]'})
+                    jQuery('<input />').attr({
+                        type: 'text',
+                        name: 'external-content-end[]'
+                    })
                 )
                 .appendTo(code_wrap)
                 
             // Refresh and Delete Button
             jQuery('<div />').attr({class: 'col span_2_of_12'})
                 .append(
-                    jQuery('<a />').attr({href: '#', class:'refresh-external-content'})
+                    jQuery('<a />').attr({
+                            href: 'external-content/0',
+                            class:'refresh-external-content',
+                            'data-nth': jQuery('.external-content-item-wrap').length + 1
+                        })
                         .append(
                             jQuery('<span />').attr({class: 'dashicons dashicons-update'})
                         )
                 )
                 .append(' ')
                 .append(
-                    jQuery('<a />').attr({href: '#', class: 'delete-external-content'})
+                    jQuery('<a />').attr({
+                            href: '#',
+                            class: 'delete-external-content'
+                        })
                         .append(
                             jQuery('<span />').attr({class: 'dashicons dashicons-trash'})
                         )
@@ -182,7 +199,43 @@ jQuery(document).ready(function() {
      */
     jQuery('#eci-metabox').delegate('.refresh-external-content', 'click', function(event) {
         event.preventDefault()
-        console.log('refresh')
+        var section = jQuery(this).parents('.external-content-item-wrap')
+            section.find('.error').removeClass('error')
+        
+        var id = parseInt(jQuery(this).attr('href').split('/').pop())
+        
+        if (id) {
+            var post_id = jQuery('#post_ID').val()
+            
+            var url = section.find('input[name="external-content-url[]"]')
+            if (url.val() == '')
+                url.addClass('error')
+                
+            var header = section.find('input[name="external-content-header[]"]')
+            
+            var open_tag = section.find('input[name="external-content-start[]"]')
+            if (open_tag.val() == '')
+                open_tag.addClass('error')
+                
+            var close_tag = section.find('input[name="external-content-end[]"]')
+            if (close_tag.val() == '')
+                close_tag.addClass('error')
+            
+            if (url.val() && open_tag.val() && close_tag.val())
+            {
+                jQuery.post(ajaxurl, {
+                    action: 'refresh_external_content',
+                    post_id: post_id,
+                    id: id,
+                    url: url.val(),
+                    header: header.val(),
+                    open_tag: open_tag.val(),
+                    close_tag: close_tag.val()
+                }, function() {
+                    
+                })
+            }
+        }
     })
     /**
      * Move External Content jQuery Event Handler
@@ -229,6 +282,8 @@ jQuery(document).ready(function() {
             } else if(index == jQuery('.external-content-item-wrap').length - 1) {
                 jQuery(object).find('.move-external-content.down').addClass('hidden')
             }
+            
+            jQuery(object).find('.refresh-external-content').attr('data-nth', index + 1)
         })
     }
 })

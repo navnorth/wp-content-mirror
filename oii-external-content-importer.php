@@ -12,7 +12,6 @@ define("OII_ECI_PATH", plugin_dir_path(__FILE__));
 define("OII_ECI_URL", plugin_dir_url(__FILE__));
 define("OII_ECI_PLUGIN_DOMAIN", "oii-external-content-importer");
 define("OII_ECI_TEMPLATE_DIRECTORY", "oii-eci-template");
-define("OII_ECI_EXTERNAL_TABLE", $wpdb->prefix . "oii_external_contents");
 
 include_once(OII_ECI_PATH . "/includes/oii-eci-settings-page.php");
 include_once(OII_ECI_PATH . "/includes/oii-eci-metabox.php");
@@ -34,12 +33,14 @@ register_deactivation_hook(__FILE__, "deactivate_oii_eci_plugin");
  */
 function activate_oii_eci_plugin()
 {
+    global $wpdb;
     //creating custom external contents table
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    $sql = "CREATE TABLE IF NOT EXISTS `" . OII_ECI_EXTERNAL_TABLE . "` (
+    $table_name = $wpdb->prefix . OII_ECI_External_Content::$table;
+    $sql = "CREATE TABLE IF NOT EXISTS `" . $table_name . "` (
             `id` bigint(20) NOT NULL AUTO_INCREMENT,
             `post_id` bigint(20) NOT NULL DEFAULT '0',
-            `order` tinyint(3) NOT NULL,
+            `external_content_id` bigint(20) NOT NULL DEFAULT '0',
             `content` longtext CHARACTER SET utf8mb4 NOT NULL,
             `url` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
             `date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',

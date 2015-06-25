@@ -1,6 +1,6 @@
 <?php
 class OII_ECI_External_Content {    
-    public static $table = "oii_external_contents";
+    public static $table = "external_contents";
     
     private static $_html_paired_tags = array(
         "a", "abbr", "address", "article", "aside", "audio",
@@ -110,6 +110,35 @@ class OII_ECI_External_Content {
         return $external_contents;
     }
     /**
+     * Get By Nth
+     * Description
+     *
+     * @param integer $post_id The post ID.
+     * @param integer $nth The nth.
+     *
+     * @return null|object
+     */
+    public static function get_by_id($post_id = 0, $id = 0)
+    {
+        require_once(OII_ECI_PATH . "includes/oii-eci-metabox.php");
+        
+        $post_meta = get_post_meta($post_id, OII_ECI_Metabox::$meta_key, TRUE);
+        
+        if(is_array($post_meta) == FALSE)
+            return NULL;
+        
+        foreach($post_meta AS $meta)
+        {
+            if($meta["id"] == $id)
+            {
+                $meta = array_merge($meta, array("post_id" => $post_id));
+                return new self($meta);
+            }
+        }
+        
+        return NULL;
+    }
+    /**
      * External Content as Postmeta
      * Description
      *
@@ -117,7 +146,7 @@ class OII_ECI_External_Content {
      */
     public function as_postmeta()
     {
-        $postmeta = array_fill_keys(array("order", "header", "url", "start", "end"), NULL);
+        $postmeta = array_fill_keys(array("id", "order", "header", "url", "start", "end"), NULL);
         
         foreach(array_keys($postmeta) AS $meta)
         {
@@ -128,16 +157,25 @@ class OII_ECI_External_Content {
         return $postmeta;
     }
     /**
-     * Load
-     * Load contents from database.
-     *
-     * @param integer $post_id The post ID.
+     * Update
+     * Update external content in database.
      */
-    public function load($post_id = 0)
+    public function update()
     {
-        global $wpdb;
+        if($this->id AND $this->post_id)
+        {
+            global $wpdb;
+            $sql = $wpdb->prepare("SELECT `id` FROM `" . $wpdb->prefix . self::$table . "` WHERE `post_id` = %d AND `external_content_id` = %d", $this->post_id, $this->id);
         
-        // Todo
+            $this->content = $this->extract();
+            
+            if($wpdb->get_row($sql))
+                $sql = $wpdb->prepare("UPDATE `" . $wpdb->prefix . self::$table . "` SET `content` = %s, `url` = %s, `date` = NOW() WHERE `post_id` = %d AND `external_content_id` = %d", $this->content, $this->url, $this->post_id, $this->id);
+            else
+                $sql = $wpdb->prepare("INSERT INTO `" . $wpdb->prefix . self::$table . "` (`post_id`, `external_content_id`, `content`, `url`, `date`) VALUES (%d, %d, %s, %s, NOW())", $this->post_id, $this->id, $this->content, $this->url);
+            
+            $wpdb->query($sql);
+        }
     }
     /**
      * Update
@@ -145,8 +183,9 @@ class OII_ECI_External_Content {
      *
      * @param integer $post_id The post ID.
      * @param integer $order The external content order.
+     * @deprecated
      */
-    public function update($post_id = 0, $order = 1)
+    private function _deprecated_update($post_id = 0, $order = 1)
     {
         global $wpdb;
         
@@ -410,13 +449,13 @@ class OII_ECI_External_Content {
         // Section Header
         $content = ($this->header) ? "<h2>" . $this->header . "</h2>" : NULL;
         // Section Anchor
-        $content .= "<a href='#extcontent" . $this->order . "'></a>";
+        $content .= "<a id='#ext-content-" . $this->order . "'></a>";
         
         if($this->content == NULL)
         {
             global $wpdb;
             
-            $sql = $wpdb->prepare("SELECT * FROM `" . $wpdb->prefix . self::$table . "` WHERE `post_id` = %d AND `order` = %d", $this->post_id, $this->order);
+            $sql = $wpdb->prepare("SELECT * FROM `" . $wpdb->prefix . self::$table . "` WHERE `post_id` = %d AND `external_content_id` = %d", $this->post_id, $this->id);
             $row = $wpdb->get_row($sql);
             
             if($row)

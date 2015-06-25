@@ -38,7 +38,7 @@ class OII_ECI_Scraper {
                 $external_contents = OII_ECI_External_Content::get_by_post_id($page->ID);
                 
                 foreach($external_contents AS $key => $external_content)
-                    $external_content->update($page->ID, $key + 1);
+                    $external_content->update();
             }
         }
     }
