@@ -449,7 +449,7 @@ class OII_ECI_External_Content {
         // Section Header
         $content = ($this->header) ? "<h2>" . $this->header . "</h2>" : NULL;
         // Section Anchor
-        $content .= "<a id='#ext-content-" . $this->order . "'></a>";
+        $content .= "<a id='ext-content-" . $this->order . "'></a>";
         
         if($this->content == NULL)
         {
