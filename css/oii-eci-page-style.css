@@ -39,3 +39,38 @@
 .hidden {
     display: none !important;
 }
+.external-content-notice {
+    text-align: left;
+    margin: 5px;
+    padding: 5px 10px;
+    border-left: 4px solid #ddd;
+  -webkit-box-shadow: 0 1px 1px 0 rgba(0,0,0,.1);
+  box-shadow: 0 1px 1px 0 rgba(0,0,0,.1);
+    position: relative;
+    background: #fff;
+}
+.external-content-notice.success {
+    border-left-color: #7ad03a;
+}
+.external-content-notice.danger {
+    border-left-color: #c00;
+}
+.external-content-notice-button {
+    outline: none;
+    border: none;
+    background-color: #fff;
+    position: absolute;
+    right: 0;
+    cursor: pointer;
+}
+.external-content-notice-button:hover span {
+    color: #444;
+}
+.external-content-notice-button span {
+    font-size: 16px;
+    color: #b4b9be;
+}
+.refresh-external-content:focus {
+    outline: none;
+    box-shadow: none;
+}

@@ -90,7 +90,11 @@ class OII_ECI_Settings_Page {
         );
         
         // Register and Enqueue External Content Importer Script
-        wp_register_script("oii-eci-settings-script", OII_ECI_URL . "js/oii-eci-settings-script.js", array("jquery"));
+        wp_register_script("oii-eci-external-content-format-script", OII_ECI_URL . "js/oii-eci-external-content-format-script.js", array("jquery"));
+        wp_enqueue_script("oii-eci-external-content-format-script");
+        
+        // Register and Enqueue External Content Importer Script
+        wp_register_script("oii-eci-settings-script", OII_ECI_URL . "js/oii-eci-settings-script.js", array("jquery", "oii-eci-external-content-format-script"));
         wp_enqueue_script("oii-eci-settings-script");
         
         wp_register_style("oii-eci-settings-style", OII_ECI_URL . "css/oii-eci-settings-style.css");
@@ -146,6 +150,16 @@ class OII_ECI_Settings_Page {
                 
             echo "</div>";
         }
+        echo "<p class='description'>
+            <span style='display:block; font-weight: bold;'>Replace:</span>"
+            . "<div><span class='format-replace'>" . htmlspecialchars("<span class=\"heading-level-1\">(.*)</span>") . "</span> <span style='font-weight: bold; font-style: italic;'>or</span></div>"
+            . "<div><span class='format-replace'>" . htmlspecialchars("<h2 class=\"section-title\" readonly>(.*)</h2>") . "</span> <span style='font-weight: bold; font-style: italic;'>or</span></div>"
+            . "<div><span class='format-replace'>" . htmlspecialchars("<label for=\"email\" class=\"input-label\">(.*)</label>") . "</span></div>"
+            . "<span style='display:block; font-weight: bold;'>With:</span>"
+            . "<div><span class='format-replace'>" . htmlspecialchars("<h2>\\1</h2>") . "</span> <span style='font-weight: bold; font-style: italic;'>or</span></div>"
+            . "<div><span class='format-replace'>" . htmlspecialchars("<label class=\"section-title\">\\1</label>") . "</span> <span style='font-weight: bold; font-style: italic;'>or</span></div>"
+            . "<div><span class='format-replace'>" . htmlspecialchars("<span for=\"email\" class=\"input-label\">\\1</span>") . "</span></div>"
+        . "</p>";
     }
     /**
      * Schedule Callback
@@ -179,7 +193,7 @@ class OII_ECI_Settings_Page {
                 // Schedule
                 if($timestamp == FALSE)
                 {
-                    wp_schedule_event(time(), $option["schedule"], self::$cron_action_hook);
+                    wp_schedule_event(time() + 2 * 60, $option["schedule"], self::$cron_action_hook);
                 }
                 else
                 {
@@ -189,7 +203,7 @@ class OII_ECI_Settings_Page {
                     if(strcmp($schedule, $option["schedule"]))
                     {
                         wp_unschedule_event($timestamp, self::$cron_action_hook);
-                        wp_reschedule_event(time(), $option["schedule"], self::$cron_action_hook);
+                        wp_reschedule_event(time() + 2 * 60, $option["schedule"], self::$cron_action_hook);
                     }
                 }
             }

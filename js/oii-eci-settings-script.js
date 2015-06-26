@@ -4,19 +4,44 @@ jQuery(document).ready(function() {
      */
     jQuery('#submit').click(function(event) {
         var submit = true
+        var format = new External_Content_Format()
         
         jQuery('.form-element').removeClass('error')
         
         var name = jQuery('#oii-eci-new-regex').attr('data-name')
         
-        jQuery('.regex').each(function() {
+        jQuery('.regex').each(function() {    
+            var replace_object = jQuery(this).children('.regex-replace')
+            var r = jQuery.trim(replace_object.val())
             
-            var replace = jQuery(this).children('.regex-replace')
-            
-            if (jQuery.trim(replace.val()) == '') {
-                replace.addClass('error')
+            if (r == '') {
+                replace_object.addClass('error')
                 
                 submit = false
+            
+            } else {
+                var replace_type = format.type('replace', r)
+                
+                if ('paired-attribute' == replace_type || 'paired' == replace_type) {
+                    // Pair HTML Tag
+                    
+                    var with_object = jQuery(this).children('.regex-with')
+                        w = jQuery.trim(with_object.val())
+                        w = w.replace('\\1', '\1')
+                        
+                    var with_type = format.type('with', w)
+                    
+                    if ('paired-attribute' == with_type || 'paired' == with_type) {
+                        
+                    } else {
+                        with_object.addClass('error')
+                        submit = false
+                    }
+                    
+                } else {
+                    replace_object.addClass('error')
+                    submit = false
+                }
             }
         })
         
