@@ -11,26 +11,32 @@ jQuery(document).ready(function() {
             var page_template = jQuery('#page_template').val()
             var template = jQuery('#eci-template').attr('data-template').split('|');
             
+            jQuery('#external-content-wrap').find('.error').removeClass('error')
+            
             if (template.indexOf(page_template) > -1) {
                 jQuery('.external-content-item-wrap').each(function() {
                     var url = jQuery(this).find('input[name="external-content-url[]"]')
-                    if (url.val() == '') {
-                        url.addClass('error')
-                    }
+                    var start = jQuery(this).find('input[name="external-content-start[]"]')
+                    var end = jQuery(this).find('input[name="external-content-end[]"]')
                     
-                    var start = jQuery(this).find('input[name="external-content-start-code[]"]')
-                    if (start.val() == '') {
-                        start.addClass('error')
-                    }
-                    
-                    var end = jQuery(this).find('input[name="external-content-end-code[]"]')
-                    if (end.val() == '') {
-                        end.addClass('error')
-                    }
-                    
-                    if (url.val() == '' || start.val() == '' || end.val() == '') {
-                        post = false
-                        jQuery('input[type="text"].error').first().focus()
+                    if (url.val() || start.val() || end.val()) {
+                        
+                        if (url.val() == '') {
+                            url.addClass('error')
+                        }
+                        
+                        if (start.val() == '') {
+                            start.addClass('error')
+                        }
+                        
+                        if (end.val() == '') {
+                            end.addClass('error')
+                        }
+                        
+                        if (url.val() == '' || start.val() == '' || end.val() == '') {
+                            post = false
+                            jQuery('input[type="text"].error').first().focus()
+                        }
                     }
                 })
             }
@@ -199,12 +205,15 @@ jQuery(document).ready(function() {
      */
     jQuery('#eci-metabox').delegate('.refresh-external-content', 'click', function(event) {
         event.preventDefault()
-        var section = jQuery(this).parents('.external-content-item-wrap')
+        var my = jQuery(this)
+        var section = my.parents('.external-content-item-wrap')
             section.find('.error').removeClass('error')
         
-        var id = parseInt(jQuery(this).attr('href').split('/').pop())
+        var id = parseInt(my.attr('href').split('/').pop())
         
         if (id) {
+            my.find('span.dashicons').addClass('fa-spin')
+            
             var post_id = jQuery('#post_ID').val()
             
             var url = section.find('input[name="external-content-url[]"]')
@@ -232,9 +241,14 @@ jQuery(document).ready(function() {
                     open_tag: open_tag.val(),
                     close_tag: close_tag.val()
                 }, function() {
-                    
+                    notice(section, 'Section content is now updated.', 'success')
+                    my.find('span.dashicons').removeClass('fa-spin')
                 })
             }
+        }
+        else
+        {
+            notice(section, 'Save the page first before refreshing this external content.', 'danger')
         }
     })
     /**
@@ -271,6 +285,13 @@ jQuery(document).ready(function() {
      * Change Direction
      * Description
      */
+    /**
+     * External Content Notice Button jQuery Event Handler
+     * Description
+     */
+    jQuery('#eci-metabox').delegate('.external-content-notice-button', 'click', function() {
+        jQuery(this).parents('.external-content-notice').remove()
+    })
     function change_direction()
     {
         jQuery('.external-content-item-wrap').map(function(index, object) {
@@ -285,5 +306,36 @@ jQuery(document).ready(function() {
             
             jQuery(object).find('.refresh-external-content').attr('data-nth', index + 1)
         })
+    }
+    /**
+     * Notice
+     * Description
+     *
+     * @param object section The section
+     * @param string message The notice message
+     * @param string type The notice type
+     */
+    function notice(section, message, type)
+    {
+        section.find('.external-content-notice-button').trigger('click')
+        
+        section.prepend(
+            jQuery('<div />').attr({
+                    class: 'external-content-notice ' + (type ? type : 'default')
+                })
+                .append(
+                    jQuery('<span />').text(message)
+                ).append(
+                    jQuery('<button />').attr({
+                            type: 'button',
+                            class: 'external-content-notice-button'
+                        })
+                        .append(
+                            jQuery('<span />').attr({
+                                    class:'dashicons dashicons-dismiss'
+                                })
+                        )
+                )
+        )
     }
 })
