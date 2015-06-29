@@ -41,16 +41,15 @@ function OII_ECI_Settings_Format() {
                  * Paired HTML Tag
                  * @code begin
                  */
-                // var p = new RegExp('^<(\\w+)>(.\*)</\\1>$')
+                var p = new RegExp('^<(\\w+)>(.\*)</\\1>$')
                 var p_attribute = new RegExp('^<(\\w+)(\\s((\\w+=((\'\\S+\')|("\\S+")))|(\\w+)))+>(.*)</\\1>$')
                 // var p_any = new RegExp()
                 
-                /**
                 if (p.test(input) && my.is_pair_tag(input)) {
                     return 'paired'
                 
                 }
-                else */if (p_attribute.test(input) && my.is_pair_tag(input)) {
+                else if (p_attribute.test(input) && my.is_pair_tag(input)) {
                     return 'paired-attribute'
                 
                 }
