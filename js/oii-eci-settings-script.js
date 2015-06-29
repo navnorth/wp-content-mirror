@@ -4,7 +4,7 @@ jQuery(document).ready(function() {
      */
     jQuery('#submit').click(function(event) {
         var submit = true
-        var format = new External_Content_Format()
+        var format = new OII_ECI_Settings_Format()
         
         jQuery('.form-element').removeClass('error')
         
@@ -21,17 +21,17 @@ jQuery(document).ready(function() {
             
             } else {
                 var replace_type = format.type('replace', r)
-                
+                console.log(replace_type)
                 if ('paired-attribute' == replace_type || 'paired' == replace_type) {
                     // Pair HTML Tag
                     
                     var with_object = jQuery(this).children('.regex-with')
                         w = jQuery.trim(with_object.val())
-                        w = w.replace('\\1', '\1')
                         
                     var with_type = format.type('with', w)
                     
                     if ('paired-attribute' == with_type || 'paired' == with_type) {
+                        
                         
                     } else {
                         with_object.addClass('error')
@@ -75,6 +75,7 @@ jQuery(document).ready(function() {
         
         var to = jQuery('<input />').attr({
             type: 'text',
+            class: 'form-element regex-with',
             name: name + '[with][]'
         })
         

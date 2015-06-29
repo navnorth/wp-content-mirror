@@ -2,6 +2,8 @@
 class OII_ECI_Settings_Page {
     private $_option;
     
+    private $_debug = FALSE;
+    
     public static $cron_action_hook = "external_content_importer_cron";
     
     private static $_menu_slug = "oii-eci-admin";
@@ -9,7 +11,7 @@ class OII_ECI_Settings_Page {
     public static $option_name = "oii_eci_settings";
     private static $_option_group = "oii_eci_opotion_group";
     
-    private static $_setting_title = "External Content Importer";
+    private static $_setting_title = "OII External Content Importer";
     
     /**
      * Class Constructor
@@ -42,7 +44,31 @@ class OII_ECI_Settings_Page {
      */
     public function create_admin_page()
     {
-        $this->_option = get_option(self::$option_name); ?>
+        $this->_option = get_option(self::$option_name);
+        
+        if($this->_debug)
+        {
+        require_once(OII_ECI_PATH . "classes/oii-eci-settings-format.php");
+            $format = new OII_ECI_Settings_Format();
+            
+            foreach($this->_option["format"] AS $expression)
+            {
+                $r = htmlspecialchars_decode($expression["replace"]);
+                $w = htmlspecialchars_decode($expression["with"]);
+                echo "<b>Replace</b>: " . $format->type("replace", $r) . "<br />";
+                foreach(explode("(.*)", $r) AS $key => $_r)
+                {
+                    echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . ($key == 0 ? "<b>Open</b>: " : " <b>Close</b>: ") . htmlspecialchars($_r). "<br />";
+                }
+                
+                echo "<b>With</b>: " . $format->type("with", $w) . "<br />";
+                foreach(explode("\\1", $w) AS $key => $_w)
+                {
+                    echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . ($key == 0 ? "<b>Open</b>: " : " <b>Close</b>: ") . htmlspecialchars($_w). "<br />";
+                }
+                echo "<br />";
+            }
+        } ?>
         <div class="wrap">
             <h2><?php echo self::$_setting_title; ?></h2>
             <form method="post" action="options.php">
@@ -90,11 +116,11 @@ class OII_ECI_Settings_Page {
         );
         
         // Register and Enqueue External Content Importer Script
-        wp_register_script("oii-eci-external-content-format-script", OII_ECI_URL . "js/oii-eci-external-content-format-script.js", array("jquery"));
-        wp_enqueue_script("oii-eci-external-content-format-script");
+        wp_register_script("oii-eci-settings-format-script", OII_ECI_URL . "js/oii-eci-settings-format-script.js", array("jquery"));
+        wp_enqueue_script("oii-eci-settings-format-script");
         
         // Register and Enqueue External Content Importer Script
-        wp_register_script("oii-eci-settings-script", OII_ECI_URL . "js/oii-eci-settings-script.js", array("jquery", "oii-eci-external-content-format-script"));
+        wp_register_script("oii-eci-settings-script", OII_ECI_URL . "js/oii-eci-settings-script.js", array("jquery", "oii-eci-settings-format-script"));
         wp_enqueue_script("oii-eci-settings-script");
         
         wp_register_style("oii-eci-settings-style", OII_ECI_URL . "css/oii-eci-settings-style.css");
@@ -157,8 +183,7 @@ class OII_ECI_Settings_Page {
             . "<div><span class='format-replace'>" . htmlspecialchars("<label for=\"email\" class=\"input-label\">(.*)</label>") . "</span></div>"
             . "<span style='display:block; font-weight: bold;'>With:</span>"
             . "<div><span class='format-replace'>" . htmlspecialchars("<h2>\\1</h2>") . "</span> <span style='font-weight: bold; font-style: italic;'>or</span></div>"
-            . "<div><span class='format-replace'>" . htmlspecialchars("<label class=\"section-title\">\\1</label>") . "</span> <span style='font-weight: bold; font-style: italic;'>or</span></div>"
-            . "<div><span class='format-replace'>" . htmlspecialchars("<span for=\"email\" class=\"input-label\">\\1</span>") . "</span></div>"
+            . "<div><span class='format-replace'>" . htmlspecialchars("<section>\\1</section>") . "</span></div>"
         . "</p>";
     }
     /**

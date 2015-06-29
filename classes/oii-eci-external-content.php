@@ -319,16 +319,50 @@ class OII_ECI_External_Content {
      *
      * @return string
      */
-    private function _change_content($content = NULL, $tag = NULL, $with = NULL)
+    private function _change_content($content = NULL, $replace = NULL, $with = NULL)
     {
-        $tag = htmlspecialchars_decode($tag);
+        $replace = htmlspecialchars_decode($replace);
         $with = htmlspecialchars_decode($with);
         
-        $again = (strpos($content, $tag) === FALSE) ? FALSE : TRUE;
+        require_once(OII_ECI_PATH . "classes/oii-eci-settings-format.php");
+        $settings_format = new OII_ECI_Settings_Format();
         
-        while($again)
+        $replace_type = $settings_format->type("replace", $replace);
+        $change = FALSE;
+        
+        // Paired HTML Tag
+        if("paired-attribute" == $replace_type OR "paired" == $replace_type)
         {
-            $o = $this->_get_tag_offset($content, $tag);
+            list($replace_open, $replace_close) = explode("(.*)", $replace);
+            list($with_open, $with_close) = explode("\\1", $with);
+        
+            $change = (strpos($content, $replace_open) === FALSE) ? FALSE : TRUE;
+        }
+        // Unpaired HTML Tag
+        else if("unpaired" == $replace_type OR "unpaired-attribute" == $replace_type)
+        {
+            
+        }
+        
+        while($change)
+        {
+            // Paired HTML Tag
+            if("paired" == $replace_type OR "paired-attribute" == $replace_type)
+            {
+                $o = $this->_get_tag_offset($content, $replace_open);
+            
+                $content = substr_replace($content, $with_close, $o["close"]["start"], $o["close"]["boundary"]);
+		$content = substr_replace($content, $with_open, $o["open"]["start"], $o["open"]["boundary"]);
+            
+                $change = (strpos($content, $replace_open) === FALSE) ? FALSE : TRUE;
+            }
+            // Unpaired HTML Tag
+            else if("unpaired" == $replace_type OR "unpaired-attribute" == $replace_type)
+            {
+                
+            }
+            /**
+            $o = $this->_get_tag_offset($content, $replace);
             
             if(array_key_exists("close", $o))
             {
@@ -362,7 +396,8 @@ class OII_ECI_External_Content {
                 $content = substr_replace($content, $_w, $o["open"]["start"], $o["open"]["boundary"]);
             }
             
-            $again = (strpos($content, $tag) === FALSE) ? FALSE : TRUE;
+            $again = (strpos($content, $replace) === FALSE) ? FALSE : TRUE;
+            */
         }
         
         return $content;
