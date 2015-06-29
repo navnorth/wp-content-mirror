@@ -159,15 +159,24 @@ class OII_ECI_External_Content {
     /**
      * Update
      * Update external content in database.
+     *
+     * @throws Exception If Post or external content was not found.
      */
     public function update()
     {
         if($this->id AND $this->post_id)
         {
+            try
+            {
+                $this->content = $this->extract();    
+            }
+            catch(Exception $e)
+            {
+                throw $e;
+            }
+            
             global $wpdb;
             $sql = $wpdb->prepare("SELECT `id` FROM `" . $wpdb->prefix . self::$table . "` WHERE `post_id` = %d AND `external_content_id` = %d", $this->post_id, $this->id);
-        
-            $this->content = $this->extract();
             
             if($wpdb->get_row($sql))
                 $sql = $wpdb->prepare("UPDATE `" . $wpdb->prefix . self::$table . "` SET `content` = %s, `url` = %s, `date` = NOW() WHERE `post_id` = %d AND `external_content_id` = %d", $this->content, $this->url, $this->post_id, $this->id);
@@ -175,6 +184,10 @@ class OII_ECI_External_Content {
                 $sql = $wpdb->prepare("INSERT INTO `" . $wpdb->prefix . self::$table . "` (`post_id`, `external_content_id`, `content`, `url`, `date`) VALUES (%d, %d, %s, %s, NOW())", $this->post_id, $this->id, $this->content, $this->url);
             
             $wpdb->query($sql);
+        }
+        else
+        {
+            throw new Exception("Post/external content not found.");
         }
     }
     /**
@@ -193,7 +206,12 @@ class OII_ECI_External_Content {
         
         $sql = $wpdb->prepare("SELECT `id` FROM `" . $wpdb->prefix . self::$table . "` WHERE `post_id` = %d AND `order` = %d", $this->post_id, $order);
         
-        $this->content = $this->extract();
+        try {
+            $this->content = $this->extract();
+            
+        } catch(Exception $e) {
+            throw new Exception($e->getMessage());
+        }
         
         if($wpdb->get_row($sql))
         {
@@ -213,13 +231,50 @@ class OII_ECI_External_Content {
      * Extract content from URL
      *
      * @return string The extracted content.
+     * @throws Exception If there were no contents retrieved.
      */
     public function extract()
     {
-        $html = file_get_contents($this->url);
+        $html = @file_get_contents($this->url);
         
         if($html === FALSE)
+            throw new Exception("Unable to retrieve contents from " . $this->url);
+        
+        $html = mb_convert_encoding($html, "HTML-ENTITIES", "UTF-8");
+        $html = trim(preg_replace("/>(\\s|\\n|\\r)+</", "><", $html));
+        
+        $open_tag = stripcslashes(htmlspecialchars_decode($this->start, ENT_QUOTES));
+        $close_tag = stripcslashes(htmlspecialchars_decode($this->end, ENT_QUOTES));
+        
+        $start = strpos($html, $open_tag);
+        
+        if($start === FALSE)
             return NULL;
+        
+        $start = $start + strlen($open_tag);
+        
+        $sub = substr($html, $start);
+        $stop = strpos($sub, $close_tag);
+        
+        if($stop === FALSE)
+            return NULL;
+        
+        return $this->_apply_format(substr($html, $start, $stop));
+    }
+    /**
+     * Extract
+     * Extract content from URL
+     *
+     * @return string The extracted content.
+     * @throws Exception If there were no contents retrieved.
+     * @deprecated
+     */
+    private function _deprecated_extract()
+    {
+        $html = @file_get_contents($this->url);
+        
+        if($html === FALSE)
+            throw new Exception("Unable to retrieve contents from " . $this->url);
         
         $html = mb_convert_encoding($html, "HTML-ENTITIES", "UTF-8");
         $html = trim(preg_replace('/(\\n)+/', NULL, $html));
@@ -305,7 +360,7 @@ class OII_ECI_External_Content {
         $option = get_option(OII_ECI_Settings_Page::$option_name);
         
         foreach($option["format"] AS $format)
-            $content = $this->_change_content($content, $format["replace"], $format["with"]);
+            $content = $this->_replace_content($content, $format["replace"], $format["with"]);
         
         return $content;
     }
@@ -319,10 +374,10 @@ class OII_ECI_External_Content {
      *
      * @return string
      */
-    private function _change_content($content = NULL, $replace = NULL, $with = NULL)
+    private function _replace_content($content = NULL, $replace = NULL, $with = NULL)
     {
-        $replace = htmlspecialchars_decode($replace);
-        $with = htmlspecialchars_decode($with);
+        $replace = htmlspecialchars_decode($replace, ENT_QUOTES);
+        $with = htmlspecialchars_decode($with, ENT_QUOTES);
         
         require_once(OII_ECI_PATH . "classes/oii-eci-settings-format.php");
         $settings_format = new OII_ECI_Settings_Format();
@@ -341,7 +396,7 @@ class OII_ECI_External_Content {
         // Unpaired HTML Tag
         else if("unpaired" == $replace_type OR "unpaired-attribute" == $replace_type)
         {
-            
+            // Todo
         }
         
         while($change)
@@ -359,7 +414,7 @@ class OII_ECI_External_Content {
             // Unpaired HTML Tag
             else if("unpaired" == $replace_type OR "unpaired-attribute" == $replace_type)
             {
-                
+                // Todo
             }
             /**
             $o = $this->_get_tag_offset($content, $replace);

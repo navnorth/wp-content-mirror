@@ -202,8 +202,24 @@ class OII_ECI_Metabox {
                 update_post_meta($post_id, self::$meta_key, $new_external_contents);
             
             if($new_external_content)
-                $new_external_content->update();
+            {
+                try
+                {
+                    $new_external_content->update();
+                    $response = array("status" => "success", "success" => array("message" => "Section content is now updated."));
+                }
+                catch(Exception $e)
+                {
+                    $response = array("status" => "error", "error" => array("message" => $e->getMessage()));
+                }
+            }
         }
+        else
+        {
+            $response = array("status" => "error", "error" => array("message" => "External Content Not Found."));
+        }
+        
+        echo json_encode($response);
         
         wp_die();
     }

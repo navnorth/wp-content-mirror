@@ -240,8 +240,19 @@ jQuery(document).ready(function() {
                     header: header.val(),
                     open_tag: open_tag.val(),
                     close_tag: close_tag.val()
-                }, function() {
-                    notice(section, 'Section content is now updated.', 'success')
+                }, function(response) {
+                    try {
+                        response = jQuery.parseJSON(response)
+                        
+                        if ('success' == response.status) {
+                            notice(section, response.success.message, 'success')
+                        } else {
+                            notice(section, response.error.message, 'danger')
+                        }
+                        
+                    } catch(e) {
+                    
+                    }
                     my.find('span.dashicons').removeClass('fa-spin')
                 })
             }
