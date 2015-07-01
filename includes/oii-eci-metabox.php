@@ -1,6 +1,6 @@
 <?php
 class OII_ECI_Metabox {
-    public static $template = array("page-templates/program-template.php", "page-templates/theme-template.php");
+    public static $template = array("page-templates/program-template.php", "page-templates/program-sub-page-template.php", "page-templates/theme-template.php");
     
     public static $meta_key = "_eci_page_external_contents";
     
