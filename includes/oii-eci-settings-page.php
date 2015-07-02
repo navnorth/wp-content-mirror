@@ -182,6 +182,7 @@ class OII_ECI_Settings_Page {
             . "<div><span class='format-replace'>" . htmlspecialchars("<span class=\"heading-level-1\">(.*)</span>") . "</span> <span style='font-weight: bold; font-style: italic;'>or</span></div>"
             . "<div><span class='format-replace'>" . htmlspecialchars("<h2 class=\"section-title\" readonly>(.*)</h2>") . "</span> <span style='font-weight: bold; font-style: italic;'>or</span></div>"
             . "<div><span class='format-replace'>" . htmlspecialchars("<label for=\"email\" class=\"input-label\">(.*)</label>") . "</span></div>"
+            . "<div><span class='format-replace'>" . htmlspecialchars("<img src=\"/images/brand-logo.png\" (.*) />") . "</span></div>"
             . "<span style='display:block; font-weight: bold;'>With:</span>"
             . "<div><span class='format-replace'>" . htmlspecialchars("<h2>\\1</h2>") . "</span> <span style='font-weight: bold; font-style: italic;'>or</span></div>"
             . "<div><span class='format-replace'>" . htmlspecialchars("<section>\\1</section>") . "</span></div>"

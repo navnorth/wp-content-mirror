@@ -18,20 +18,26 @@ function OII_ECI_Settings_Format() {
                  * @todo
                  */
                 /**
-                var up = new RegExp('^<\\w+\\s?/?>$')
-                var up_attribute = new RegExp('^<\\w+(\\s((\\w+=(("\\S+")|(\'\\S+\')))|(\\w+)))+((>)|(\\s?/>))$')
-                var up_any = new RegExp()
+                var s = new RegExp('^<\\w+\\s?/?>$')
+                var s_attribute = new RegExp('^<\\w+(\\s((\\w+=(("\\S+")|(\'\\S+\')))|(\\w+)))+((>)|(\\s?/>))$')
+                var s_any = new RegExp()*/
+                var s_attribute_any = new RegExp('^<\\w+(\\s((\\w+=(("\\S+")|(\'\\S+\')))|(\\w+)))+\\s?\\(\\.\\*\\)((>)|(\\s?/>))$')
                 
-                if (up.test(input) && my.is_single_tag(input)) {
+                /**
+                if (s.test(input) && my.is_single_tag(input)) {
                     return 'single'
                 
-                } else if (up_attribute.test(input) && my.is_single_tag(input)) {
+                } else if (s_attribute.test(input) && my.is_single_tag(input)) {
                     return 'single-attribute'
                 
-                } else if (up_any.test(input) && my.is_single_tag(input)) {
+                } else if (s_any.test(input) && my.is_single_tag(input)) {
                     return 'single-any'
+                
+                } else*/ if(s_attribute_any.test(input) && my.is_single_tag(input)) {
+                    return 'single-attribute-any'
+                
                 }
-                */
+                
                 /**
                  * Unpaired HTML Tag
                  * @code begin

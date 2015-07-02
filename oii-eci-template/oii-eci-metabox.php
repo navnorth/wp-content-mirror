@@ -9,14 +9,7 @@
 </style>
 <div class="external-content-new-wrap">
     <div class="section group">
-        <div class="col span_9_of_12">
-            <div id="message" class="updated notice notice-success is-dismissible below-h2">
-                <p style="margin: 2.5px;">Page updated</p>    
-            </div>
-        </div>
-        <div class="col span_3_of_12">
-            <button type="button" id="new-external-content" class="button">New External Content</button>
-        </div>
+        <button type="button" id="new-external-content" class="button">New External Content</button>
     </div>
 </div>
 

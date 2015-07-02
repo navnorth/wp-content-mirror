@@ -393,10 +393,20 @@ class OII_ECI_External_Content {
         
             $change = (strpos($content, $replace_open) === FALSE) ? FALSE : TRUE;
         }
-        // Unpaired HTML Tag
-        else if("unpaired" == $replace_type OR "unpaired-attribute" == $replace_type)
+        // Single HTML Tag
+        else if("single-attribute-any" == $replace_type)
         {
-            // Todo
+            if($with)
+            {
+                // Todo
+            }
+            else
+            {
+                $search_pattern = "/" . preg_replace("/\s?\(\.\*\)(\s?\/)?>/", "[^<>]*>", preg_replace("/\/[^>]/", "\\\\$0", $replace)) . "/";
+                preg_match($search_pattern, $content, $match_single_attribute_any);
+                
+                $change = (boolean) count($match_single_attribute_any);
+            }
         }
         
         while($change)
@@ -411,10 +421,18 @@ class OII_ECI_External_Content {
             
                 $change = (strpos($content, $replace_open) === FALSE) ? FALSE : TRUE;
             }
-            // Unpaired HTML Tag
-            else if("unpaired" == $replace_type OR "unpaired-attribute" == $replace_type)
+            // Single HTML Tag
+            else if("single-attribute-any" == $replace_type)
             {
-                // Todo
+                if($with)
+                {
+                    // Todo
+                }
+                else
+                {
+                    $content = preg_replace($search_pattern, $with, $content);
+                    $change = FALSE;
+                }
             }
             /**
             $o = $this->_get_tag_offset($content, $replace);

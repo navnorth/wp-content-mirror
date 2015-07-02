@@ -10,6 +10,8 @@ jQuery(document).ready(function() {
         
         var name = jQuery('#oii-eci-new-regex').attr('data-name')
         
+        jQuery('.regex > .description.pattern').remove()
+        
         jQuery('.regex').each(function() {    
             var replace_object = jQuery(this).children('.regex-replace')
             var r = jQuery.trim(replace_object.val())
@@ -17,29 +19,63 @@ jQuery(document).ready(function() {
             if (r == '') {
                 replace_object.addClass('error')
                 
+                jQuery(this).append(
+                    jQuery('<p />').attr({
+                        class: 'description pattern',
+                        style: 'color: #C3363F; margin-left: 56px'
+                    }).text('Replace pattern is required')
+                )
+                
                 submit = false
             
             } else {
                 var replace_type = format.type('replace', r)
-                console.log(replace_type)
+                
+                var with_object = jQuery(this).children('.regex-with')
+                    w = jQuery.trim(with_object.val())
+                
                 if ('paired-attribute' == replace_type || 'paired' == replace_type) {
                     // Pair HTML Tag
-                    
-                    var with_object = jQuery(this).children('.regex-with')
-                        w = jQuery.trim(with_object.val())
-                        
                     var with_type = format.type('with', w)
                     
                     if ('paired-attribute' == with_type || 'paired' == with_type) {
-                        
-                        
+                    
                     } else {
                         with_object.addClass('error')
+                        
+                        jQuery(this).append(
+                            jQuery('<p />').attr({
+                                class: 'description pattern',
+                                style: 'color: #C3363F; margin-left: 56px'
+                            }).text('Incorrect/ unsupported replace with pattern')
+                        )
+                        
                         submit = false
                     }
                     
+                } else if('single-attribute-any' == replace_type) {
+                    if (w) {
+                        with_object.addClass('error')
+                        
+                        jQuery(this).append(
+                            jQuery('<p />').attr({
+                                class: 'description pattern',
+                                style: 'color: #C3363F; margin-left: 56px'
+                            }).text('Incorrect/ unsupported replace with pattern')
+                        )
+                        
+                        submit = false
+                    }
                 } else {
                     replace_object.addClass('error')
+                    
+                    jQuery(this).append(
+                        jQuery('<p />').attr({
+                            class: 'description pattern',
+                            style: 'color: #C3363F; margin-left: 56px'
+                        }).text('Incorrect/ unsupported replace pattern')
+                    )
+                    
                     submit = false
                 }
             }

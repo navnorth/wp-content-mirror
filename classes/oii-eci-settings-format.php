@@ -22,9 +22,14 @@ class OII_ECI_Settings_Format {
                  * Unpaired HTML Tag
                  * @code begin
                  */
-                //$up = NULL;
-                //$up_attribute = NULL;
-                //$up_any = NULL;
+                //$s = NULL;
+                //$s_attribute = NULL;
+                //$s_any = NULL;
+                $s_attribute_any = "/^<\w+(\s((\w+=((\"\S+\")|('\S+')))|(\w+)))+\s?\(\.\*\)((>)|(\s?\/>))$/";
+                preg_match($s_attribute_any, $input, $s_attribute_any_match);
+                
+                if(count($s_attribute_any_match))
+                    return "single-attribute-any";
                 /**
                  * Unpaired HTML Tag
                  * @code end
@@ -62,9 +67,9 @@ class OII_ECI_Settings_Format {
                  * Unpaired HTML Tag
                  * @code begin
                  */
-                $up = NULL;
-                $up_attribute = NULL;
-                $up_any = NULL;
+                $s = NULL;
+                $s_attribute = NULL;
+                $s_any = NULL;
                 /**
                  * Unpaired HTML Tag
                  * @code end
