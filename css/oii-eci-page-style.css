@@ -37,7 +37,7 @@
     text-align: right;
 }
 .hidden {
-    display: none !important;
+    display: none;
 }
 .external-content-notice {
     text-align: left;
