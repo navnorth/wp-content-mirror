@@ -1,12 +1,5 @@
 <input type="hidden" id="eci-template" data-template="<?php echo implode("|", OII_ECI_Metabox::$template); ?>" />
-<style>
-    .external-content-new-wrap .notice .notice-dismiss {
-        padding: 5px;
-    }
-    .external-content-new-wrap .notice p {
-        margin: 2.5px;
-    }
-</style>
+
 <div class="external-content-new-wrap">
     <div class="section group">
         <button type="button" id="new-external-content" class="button">New External Content</button>
@@ -15,7 +8,9 @@
 
 <div id="external-content-wrap">
 <?php
-    foreach($this->get_external_contents($post->ID) AS $key => $external_content)
+    $external_content_collection = $this->get_external_contents($post->ID);
+
+    foreach($external_content_collection AS $key => $external_content)
     { ?>
     <div class="external-content-item-wrap">
         <input type="hidden" name="external-content-id[]" value="<?php echo (int) $external_content->id; ?>" />
@@ -30,10 +25,10 @@
                 <input type="text" name="external-content-header[]" value="<?php echo $external_content->header; ?>" />
             </div>
             <div class="col span_2_of_12">
-                <a href="#" class="move-external-content down">
+                <a href="#" class="move-external-content down<?php if($key == count($external_content_collection) - 1) echo " hidden"; ?>">
                     <span class="dashicons dashicons-arrow-down-alt"></span>
                 </a>
-                <a href="#" class="move-external-content up hidden">
+                <a href="#" class="move-external-content up<?php if($key == 0) echo " hidden"; ?>">
                     <span class="dashicons dashicons-arrow-up-alt"></span>
                 </a>
             </div>
