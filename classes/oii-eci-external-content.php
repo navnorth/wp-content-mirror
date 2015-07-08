@@ -259,7 +259,10 @@ class OII_ECI_External_Content {
         if($stop === FALSE)
             return NULL;
         
-        return $this->_apply_format(substr($html, $start, $stop));
+        //cleanup relative links
+        $html = $this->_replace_relative_links(substr($html, $start, $stop), $this->url);
+        
+        return $this->_apply_format($html);
     }
     /**
      * Extract
@@ -646,5 +649,33 @@ class OII_ECI_External_Content {
         preg_match($pattern, $tag, $matches);
         
         return (boolean) count($matches);
+    }
+    /**
+     *
+     * Replace Relative Links
+     *
+     **/
+    private function _replace_relative_links($html, $repUrl){
+        
+        $match = array();
+        
+        //check for href links
+        $url   = preg_match_all('/href="([^\s"]+)/', $html, $match);
+        
+        $base_urls = parse_url($repUrl);
+        
+        //replace base url
+        $base_rep_url = $base_urls['scheme']."://".$base_urls['host'];
+        
+        if(count($match[1]))
+        {
+            for($j=0; $j<count($match[1]); $j++)
+            {
+                if ((strpos($match[1][$j],"http")===false) && (strpos($match[1][$j],"mailto")===false)){
+                    $html = str_replace($match[1][$j], $base_rep_url.$match[1][$j], $html);
+                }
+            }
+        }
+        return $html;
     }
 }
