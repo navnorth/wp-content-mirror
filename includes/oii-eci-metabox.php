@@ -1,9 +1,11 @@
 <?php
 class OII_ECI_Metabox {
     public static $template = array("page-templates/program-template.php", "page-templates/program-sub-page-template.php", "page-templates/theme-template.php");
-    
+
     public static $meta_key = "_eci_page_external_contents";
-    
+
+    private $_debug = TRUE;
+
     public $id = "eci-metabox";
     /**
      * Class Constructor
@@ -46,23 +48,23 @@ class OII_ECI_Metabox {
          * Add Metabox
          * @code end
          */
-        
+
         /**
          * Show or Hide Metabox
          * @code begin
          */
         global $post;
-        
+
         $page_template = get_post_meta($post->ID, "_wp_page_template", TRUE);
-        
+
         if(in_array($page_template, self::$template) == FALSE)
             add_filter("postbox_classes_page_" . $this->id, array($this, "hidden"));
         /**
          * Show or Hide Metabox
          * @code end
          */
-        
-        
+
+
     }
     /**
      * Metabox Hidden
@@ -84,24 +86,24 @@ class OII_ECI_Metabox {
         // Register and Enqueue Script
         wp_register_script("oii-eci-page-script", OII_ECI_URL . "js/oii-eci-page-script.js", array("jquery"));
         wp_enqueue_script("oii-eci-page-script");
-        
+
         /**
          * Register and Enqueue Styles
          * @code begin
          */
         wp_register_style("oii-eci-grid-style", OII_ECI_URL . "css/oii-eci-grid-style.css");
         wp_enqueue_style("oii-eci-grid-style");
-        
+
         wp_register_style("oii-eci-page-style", OII_ECI_URL . "css/oii-eci-page-style.css");
         wp_enqueue_style("oii-eci-page-style");
         /**
          * Register and Enqueue Styles
          * @code end
          */
-        
+
         //include_once(OII_ECI_PATH . "/classes/oii-eci-scraper.php");
         //OII_ECI_Scraper::run();
-        
+
         include_once(OII_ECI_PATH . "oii-eci-template/oii-eci-metabox.php");
     }
     /**
@@ -118,30 +120,30 @@ class OII_ECI_Metabox {
             if(isset($_POST["external-content-url"]) AND isset($_POST["external-content-header"]) AND isset($_POST["external-content-start"]) AND isset($_POST["external-content-end"]))
             {
                 require_once(OII_ECI_PATH . "classes/oii-eci-external-content.php");
-                
+
                 $external_contents = array();
-                
+
                 $id = time();
-                
+
                 foreach($_REQUEST["external-content-url"] AS $key => $content)
                 {
                     $external_content = new OII_ECI_External_Content();
-                    
+
                     $external_content->order = $key + 1;
                     $external_content->header = sanitize_text_field($_REQUEST["external-content-header"][$key]);
                     $external_content->url = sanitize_text_field($content);
-                    
+
                     $external_content->start = esc_html($_REQUEST["external-content-start"][$key]);
                     $external_content->end = esc_html($_REQUEST["external-content-end"][$key]);
-                    
+
                     $external_content->id = ($_REQUEST["external-content-id"][$key]) ? (int) $_REQUEST["external-content-id"][$key] : $id;
-                    
+
                     if($_REQUEST["external-content-id"][$key] == 0)
                         $id++;
-                    
+
                     $external_contents[] = $external_content->as_postmeta();
                 }
-                
+
                 update_post_meta($post_id, self::$meta_key, $external_contents);
             }
         }
@@ -157,12 +159,12 @@ class OII_ECI_Metabox {
     public function get_external_contents($page_id)
     {
         require_once(OII_ECI_PATH . "classes/oii-eci-external-content.php");
-        
+
         $external_contents = OII_ECI_External_Content::get_by_post_id($page_id);
-        
+
         if(count($external_contents))
             return $external_contents;
-        
+
         return array(new stdClass());
     }
     /**
@@ -172,17 +174,20 @@ class OII_ECI_Metabox {
     public function refresh_external_content()
     {
         require_once(OII_ECI_PATH . "classes/oii-eci-external-content.php");
-        
+
         $post_id = (int) $_POST["post_id"];
         $id = (int) $_POST["id"];
-        
+
+        if($this->_debug)
+            error_log( 'running OII ECI Scraper on manual refresh on post_id ' . $post_id );
+
         $external_contents = OII_ECI_External_Content::get_by_post_id($post_id);
-        
+
         if(count($external_contents))
         {
             $new_external_contents = array();
             $new_external_content = NULL;
-            
+
             foreach($external_contents AS $external_content)
             {
                 if($external_content->id == $id)
@@ -191,16 +196,16 @@ class OII_ECI_Metabox {
                     $external_content->header = sanitize_text_field($_POST["header"]);
                     $external_content->start = esc_html($_POST["open_tag"]);
                     $external_content->end = esc_html($_POST["close_tag"]);
-                    
+
                     $new_external_content = $external_content;
                 }
-                
+
                 array_push($new_external_contents, $external_content->as_postmeta());
             }
-            
+
             if(count($new_external_contents))
                 update_post_meta($post_id, self::$meta_key, $new_external_contents);
-            
+
             if($new_external_content)
             {
                 try
@@ -218,9 +223,9 @@ class OII_ECI_Metabox {
         {
             $response = array("status" => "error", "error" => array("message" => "External Content Not Found."));
         }
-        
+
         echo json_encode($response);
-        
+
         wp_die();
     }
 }

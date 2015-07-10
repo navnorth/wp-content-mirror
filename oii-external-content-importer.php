@@ -6,7 +6,7 @@
  * Version: 1.0.0
  * Author:
  * Author URI:
- * License: 
+ * License:
  */
 define("OII_ECI_PATH", plugin_dir_path(__FILE__));
 define("OII_ECI_URL", plugin_dir_url(__FILE__));
@@ -17,6 +17,8 @@ include_once(OII_ECI_PATH . "/includes/oii-eci-settings-page.php");
 include_once(OII_ECI_PATH . "/includes/oii-eci-metabox.php");
 include_once(OII_ECI_PATH . "/classes/oii-eci-external-content.php");
 include_once(OII_ECI_PATH . "/classes/oii-eci-scraper.php");
+
+$_debug = TRUE;
 
 if(is_admin())
 {
@@ -78,13 +80,13 @@ function oii_eci_settings_link( $links ) {
  */
 function get_external_content($post_id) {
     $content = "";
-    
+
     $rows = OII_ECI_External_Content::get_by_post_id($post_id);
-    
+
     foreach($rows as $row){
 	$content .= $row->output_content();
     }
-    
+
     return $content;
 }
 
@@ -106,6 +108,8 @@ add_filter( 'the_content', oii_eci_content_filter );
  */
 function external_content_importer_cron_job()
 {
+    if($_debug)
+        error_log( 'running OII ECI Scraper via cron' );
     OII_ECI_Scraper::run();
 }
 // External Content Importer Cron Job Hook
