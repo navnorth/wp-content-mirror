@@ -100,7 +100,7 @@ function oii_eci_content_filter($content){
     $new_content = get_external_content($post->ID);
     return $content.$new_content;
 }
-add_filter( 'the_content', oii_eci_content_filter );
+add_filter( 'the_content', "oii_eci_content_filter" );
 
 /**
  * External Content Importer Cron Job
