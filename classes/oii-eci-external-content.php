@@ -695,8 +695,7 @@ class OII_ECI_External_Content {
         
         if ($row) {
             // get url based on post id
-            $_post_url = get_permalink($row->post_id);
-            $url = $_post_url;
+            $url = get_permalink($row->post_id);
         }
         
         return $url;
