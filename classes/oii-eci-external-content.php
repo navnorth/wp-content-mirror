@@ -673,9 +673,33 @@ class OII_ECI_External_Content {
             {
                 if ((strpos($match[1][$j],"http")===false) && (strpos($match[1][$j],"mailto")===false)){
                     $html = str_replace($match[1][$j], $base_rep_url.$match[1][$j], $html);
+                } else {
+                    $html = str_replace($match[1][$j],$this->_replace_internal_link($match[1][$j]),$html);
                 }
             }
         }
         return $html;
+    }
+    
+    /**
+     *
+     * Replace Internal Links
+     *
+     **/
+    private function _replace_internal_link($url){
+        global $wpdb;
+        
+        // query external content table if url exists and return post id
+        $sql = $wpdb->prepare("SELECT post_id FROM ".$wpdb->prefix.self::$table." WHERE url='%s' LIMIT 0,1", $url);
+        $row = $wpdb->get_row($sql);
+        
+        if ($row) {
+            // get url based on post id
+            $_post_url = get_permalink($row->post_id);
+            $url = $_post_url;
+        }
+        
+        return $url;
+        
     }
 }
