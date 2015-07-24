@@ -28,5 +28,8 @@ No screenshots available.
 
 ### Changelog ###
 
+= 0.8.1 =
+* Add function to fix links between mirrored pages
+
 = 0.8.0 =
 * Initial release, for use on innovation.ed.gov
