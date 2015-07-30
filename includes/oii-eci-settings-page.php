@@ -115,6 +115,14 @@ class OII_ECI_Settings_Page {
             "setting_section_id"
         );
         
+        add_settings_field(
+            "debug",
+            "Debug Mode",
+            array($this, "debug_callback"),
+            self::$_menu_slug, 
+            "setting_section_id"
+        );
+        
         // Register and Enqueue External Content Importer Script
         wp_register_script("oii-eci-settings-format-script", OII_ECI_URL . "js/oii-eci-settings-format-script.js", array("jquery"));
         wp_enqueue_script("oii-eci-settings-format-script");
@@ -145,6 +153,11 @@ class OII_ECI_Settings_Page {
         
         if(isset($input["schedule"]))
             $new_input["schedule"] = $input["schedule"];
+            
+        if (isset($input["debug"]))
+            $new_input["debug"] = $input["debug"];
+        else
+            $new_input["debug"] = 0;
             
         return $new_input;
     }
@@ -202,6 +215,16 @@ class OII_ECI_Settings_Page {
         
         echo "</select>";
         echo "<p class='description'>The schedule for updating content.</p>";
+    }
+    /**
+     * Debug Mode Callback
+     * Description
+     */
+    public function debug_callback()
+    {
+        $checked = ($this->_option['debug']==1)?"checked":"";
+        echo "<input type='checkbox' id='".self::$option_name."[debug]' name='".self::$option_name."[debug]' value='1' ".$checked." />";
+        echo "<p class='description'>Check this to enable debugging.</p>";
     }
     /**
      * Setup Cron
