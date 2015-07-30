@@ -1,18 +1,23 @@
 <?php
 require_once(OII_ECI_PATH . "includes/oii-eci-metabox.php");
 require_once(OII_ECI_PATH . "classes/oii-eci-external-content.php");
-
-$_debug = TRUE;
+require_once(OII_ECI_PATH . "/includes/oii-eci-settings-page.php");
 
 class OII_ECI_Scraper {
+    private $_debug;
+    
     public function __construct()
     {
-
+       
     }
 
     public static function run()
     {
-        if($_debug)
+        //get debug mode from option
+        $_option = get_option(OII_ECI_Settings_Page::$option_name);
+        $_debug = $_option['debug'];
+        
+        if($_debug==1)
             error_log( 'running OII ECI Scraper start' );
 
         $pages = array();
@@ -42,7 +47,7 @@ class OII_ECI_Scraper {
             {
                 $external_contents = OII_ECI_External_Content::get_by_post_id($page->ID);
 
-                if($_debug)
+                if($_debug==1)
                     error_log( 'running OII ECI Scraper for page ' . $page->ID );
 
                 foreach($external_contents AS $key => $external_content)
@@ -58,7 +63,7 @@ class OII_ECI_Scraper {
                 }
             }
         }
-        if($_debug)
+        if($_debug==1)
             error_log( 'running OII ECI Scraper end' );
 
     }

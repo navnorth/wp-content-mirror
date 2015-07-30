@@ -1,10 +1,12 @@
 <?php
+require_once(OII_ECI_PATH . "/includes/oii-eci-settings-page.php");
+
 class OII_ECI_Metabox {
     public static $template = array("page-templates/program-template.php", "page-templates/program-sub-page-template.php", "page-templates/theme-template.php");
 
     public static $meta_key = "_eci_page_external_contents";
 
-    private $_debug = TRUE;
+    private $_debug;
 
     public $id = "eci-metabox";
     /**
@@ -13,6 +15,8 @@ class OII_ECI_Metabox {
      */
     public function __construct()
     {
+        $_option = get_option(OII_ECI_Settings_Page::$option_name);
+        $_debug = $_option['debug'];
         add_action("load-post.php", array($this, "setup"));
         add_action("load-post-new.php", array($this, "setup"));
         add_action("wp_ajax_refresh_external_content", array($this, "refresh_external_content"));
@@ -102,7 +106,7 @@ class OII_ECI_Metabox {
          */
 
         //include_once(OII_ECI_PATH . "/classes/oii-eci-scraper.php");
-        //OII_ECI_Scraper::run();
+        OII_ECI_Scraper::run();
 
         include_once(OII_ECI_PATH . "oii-eci-template/oii-eci-metabox.php");
     }
@@ -178,7 +182,7 @@ class OII_ECI_Metabox {
         $post_id = (int) $_POST["post_id"];
         $id = (int) $_POST["id"];
 
-        if($this->_debug)
+        if($this->_debug==1)
             error_log( 'running OII ECI Scraper on manual refresh on post_id ' . $post_id );
 
         $external_contents = OII_ECI_External_Content::get_by_post_id($post_id);

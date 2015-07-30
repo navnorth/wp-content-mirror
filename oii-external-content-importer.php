@@ -33,7 +33,8 @@ include_once(OII_ECI_PATH . "/includes/oii-eci-metabox.php");
 include_once(OII_ECI_PATH . "/classes/oii-eci-external-content.php");
 include_once(OII_ECI_PATH . "/classes/oii-eci-scraper.php");
 
-$_debug = TRUE;
+$_option = get_option(OII_ECI_Settings_Page::$option_name);
+$_debug = $_option['debug'];
 
 if(is_admin())
 {
@@ -123,7 +124,7 @@ add_filter( 'the_content', "oii_eci_content_filter" );
  */
 function external_content_importer_cron_job()
 {
-    if($_debug)
+    if($_debug==1)
         error_log( 'running OII ECI Scraper via cron' );
     OII_ECI_Scraper::run();
 }
