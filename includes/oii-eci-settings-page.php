@@ -75,7 +75,8 @@ class OII_ECI_Settings_Page {
             <?php
                 settings_fields(self::$_option_group);
                 do_settings_sections(self::$_menu_slug);
-                submit_button();
+                submit_button( "Refresh All Content Now", "secondary", "refresh", false, array("style" => "margin-right:10px;"));
+                submit_button( "Submit", "primary", "submit", false );
             ?>
             </form>
         </div>
