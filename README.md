@@ -28,6 +28,10 @@ No screenshots available.
 
 ### Changelog ###
 
+= 0.8.2 =
+* Added Refresh All function
+* Added debug mode for additional logging
+
 = 0.8.1 =
 * Add function to fix links between mirrored pages
 
