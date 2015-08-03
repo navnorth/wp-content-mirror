@@ -259,7 +259,7 @@ class OII_ECI_External_Content {
         if($stop === FALSE)
             return NULL;
         
-        //cleanup relative links
+        // Cleanup Relative Links
         $html = $this->_replace_relative_links(substr($html, $start, $stop), $this->url);
         
         return $this->_apply_format($html);

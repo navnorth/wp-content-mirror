@@ -1,4 +1,13 @@
 <?php
+/**
+ * OII ECI Settings Page Class
+ * Description
+ *
+ * @version 1.0.1 2015-08-03
+ */
+
+require_once(OII_ECI_PATH . "/classes/oii-eci-scraper.php");
+
 class OII_ECI_Settings_Page {
     private $_option;
     
@@ -21,6 +30,8 @@ class OII_ECI_Settings_Page {
     {
         add_action("admin_menu", array($this, "add_plugin_page"));
         add_action("admin_init", array($this, "page_init"));
+        
+        add_action("wp_ajax_refresh_all_external_contents", array($this, "refresh_all_external_contents"));
     }
     /**
      * Add Plugin Page
@@ -75,14 +86,16 @@ class OII_ECI_Settings_Page {
             <?php
                 settings_fields(self::$_option_group);
                 do_settings_sections(self::$_menu_slug);
-                submit_button( "Refresh All Content Now", "secondary", "refresh", false, array("style" => "margin-right:10px;"));
-                submit_button( "Submit", "primary", "submit", false );
+                submit_button();
             ?>
             </form>
         </div>
         <?php
     }
-    
+    /**
+     * Page Initialize
+     * Description
+     */
     public function page_init()
     {
         register_setting(
@@ -108,6 +121,7 @@ class OII_ECI_Settings_Page {
             "setting_section_id"
         );
         
+        // Create Schedule Setting on Section
         add_settings_field(
             "schedule",
             "Schedule",
@@ -116,11 +130,20 @@ class OII_ECI_Settings_Page {
             "setting_section_id"
         );
         
+        // Create Debug Setting on Section
         add_settings_field(
             "debug",
             "Debug Mode",
             array($this, "debug_callback"),
             self::$_menu_slug, 
+            "setting_section_id"
+        );
+        
+        add_settings_field(
+            "refresh",
+            "",
+            array($this, "refresh_all_callback"),
+            self::$_menu_slug,
             "setting_section_id"
         );
         
@@ -141,6 +164,7 @@ class OII_ECI_Settings_Page {
      */
     public function sanitize($input)
     {
+       
         $new_input = array();
         
         if( isset($input["replace"]) AND isset($input["with"]))
@@ -161,6 +185,7 @@ class OII_ECI_Settings_Page {
             $new_input["debug"] = 0;
             
         return $new_input;
+        
     }
     /**
      * Print Section Description
@@ -226,6 +251,35 @@ class OII_ECI_Settings_Page {
         $checked = ($this->_option['debug']==1)?"checked":"";
         echo "<input type='checkbox' id='".self::$option_name."[debug]' name='".self::$option_name."[debug]' value='1' ".$checked." />";
         echo "<p class='description'>Check this to enable debugging.</p>";
+    }
+    /**
+     * Refresh Callback
+     * Description
+     *
+     * @since 1.0.1
+     */
+    public function refresh_all_callback()
+    {
+        echo "<div style='display: inline-block;'>
+            <div class='updated notice hidden'> 
+                <p><strong></strong></p>
+            </div>
+            <button type='button' class='button' id='refresh-all-external-contents' data-loading-text='Refreshing...'>Refresh All Contents Now</button>
+            <span class='spinner' style='float: none;'></span>
+            
+            <p class='description' data-default-text='Refresh all existing external contents.'>Refresh all existing external contents.</p>
+        </div>";
+        
+    }
+    /**
+     * Refresh All External Contents
+     * Description
+     */
+    public function refresh_all_external_contents()
+    {
+        OII_ECI_Scraper::run();
+        
+        wp_die();
     }
     /**
      * Setup Cron

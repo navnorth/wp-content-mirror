@@ -1,6 +1,7 @@
 jQuery(document).ready(function() {
     /**
      * Submit jQuery Event Handler
+     * Description
      */
     jQuery('#submit').click(function(event) {
         var submit = true
@@ -91,6 +92,7 @@ jQuery(document).ready(function() {
     })
     /**
      * Delete Regex jQuery Event Handler
+     * Description
      */
     jQuery(document).delegate('.delete-regex', 'click', function(event) {
         event.preventDefault()
@@ -99,6 +101,7 @@ jQuery(document).ready(function() {
     })
     /**
      * New Regex jQuery Event Handler
+     * Description
      */
     jQuery('#oii-eci-new-regex').click(function() {
         var name = jQuery(this).attr('data-name')
@@ -135,5 +138,39 @@ jQuery(document).ready(function() {
             .insertAfter(
                 jQuery('.regex').last()
             )
+    })
+    /**
+     * Refresh All Contents jQuery Event Handler
+     * Description
+     */
+    jQuery('#refresh-all-external-contents').click(function() {
+        if (window.confirm("Are you sure you want to refresh all external content? \nThis will take some time and may be taxing on the server.")) {
+            var button = jQuery(this)
+            var notice = button.parent().find('.notice')
+            var spinner = button.parent().find('.spinner')
+            var normal = button.text()
+            var desc = button.parent().find('.description')
+            
+            button.addClass('disabled')
+                .text(jQuery(this).data('loading-text'))
+            
+            spinner.addClass('is-active')
+            
+            notice.addClass('hidden')
+                .find('strong').text('')
+            
+            desc.css('color', '#666').text(desc.data('default-text'))
+                
+            jQuery.post(ajaxurl, {
+                action: 'refresh_all_external_contents'
+            }, function(response) {
+                notice.removeClass('hidden').find('strong').text('Contents successfully refreshed.')
+                desc.css('color', '#3c763d').text('Contents successfully refreshed.')
+            })
+            .always(function() {
+                button.text(normal).removeClass('disabled')
+                spinner.removeClass('is-active')
+            })
+        }
     })
 })
