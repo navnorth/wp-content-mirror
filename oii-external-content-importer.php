@@ -3,7 +3,7 @@
  Plugin Name: OII External Content Mirror
  Plugin URI: http://www.navigationnorth.com/wordpress/wp-content-mirror
  Description: Automatically import HTML content from external web pages and append to existing WP pages.
- Version: 0.8.2
+ Version: 0.8.3
  Author: Navigation North
  Author URI: http://www.navigationnorth.com
 
