@@ -672,7 +672,12 @@ class OII_ECI_External_Content {
             for($j=0; $j<count($match[1]); $j++)
             {
                 if ((strpos($match[1][$j],"http")===false) && (strpos($match[1][$j],"mailto")===false)){
-                    $html = str_replace($match[1][$j], $base_rep_url.$match[1][$j], $html);
+                    if(strpos($match[1][$j],".html") || strpos($match[1][$j],".htm")){
+                        $extUrlPath = substr($this->url, 0, strrpos($this->url, '/') + 1);
+                        $html = str_replace($match[1][$j], $extUrlPath.$match[1][$j], $html);
+                    } else {
+                        $html = str_replace($match[1][$j], $base_rep_url.$match[1][$j], $html);
+                    }
                 } else {
                     $html = str_replace($match[1][$j],$this->_replace_internal_link($match[1][$j]),$html);
                 }
