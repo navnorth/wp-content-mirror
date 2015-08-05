@@ -5,10 +5,10 @@ require_once(OII_ECI_PATH . "/includes/oii-eci-settings-page.php");
 
 class OII_ECI_Scraper {
     private $_debug;
-    
+
     public function __construct()
     {
-       
+
     }
     /**
      * Run
@@ -19,7 +19,7 @@ class OII_ECI_Scraper {
         // Get Debug Mode from Option
         $_option = get_option(OII_ECI_Settings_Page::$option_name);
         $_debug = $_option["debug"];
-        
+
         if($_debug == 1)
             error_log("running OII ECI Scraper start");
 
@@ -34,7 +34,8 @@ class OII_ECI_Scraper {
                     array(
                         "post_type" => "page",
                         "meta_key" => "_wp_page_template",
-                        "meta_value" => $_template
+                        "meta_value" => $_template,
+                        'posts_per_page' => -1
                     )
                 )
             );
@@ -55,18 +56,22 @@ class OII_ECI_Scraper {
 
                 foreach($external_contents AS $key => $external_content)
                 {
-                    try
-                    {
-                        $external_content->update();
-                    }
-                    catch(Exception $e)
-                    {
-                        error_log($e->getMessage());
+                    if($_debug == 1 && empty($external_content->url))
+                       error_log("Skipping scraper due to empty URL for page " . $page->ID);
+                    else {
+                        try
+                        {
+                            $external_content->update();
+                        }
+                        catch(Exception $e)
+                        {
+                            error_log($e->getMessage());
+                        }
                     }
                 }
             }
         }
-        
+
         if($_debug == 1)
             error_log("running OII ECI Scraper end");
     }

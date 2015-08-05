@@ -28,6 +28,10 @@ No screenshots available.
 
 ### Changelog ###
 
+= 0.8.3 =
+* Bug fix on Refresh All
+* Better replacement of relative links on imported content
+
 = 0.8.2 =
 * Added Refresh All function
 * Added debug mode for additional logging
