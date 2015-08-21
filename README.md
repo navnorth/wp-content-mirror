@@ -28,7 +28,7 @@ No screenshots available.
 
 ### Changelog ###
 
-= 0.8.3 =
+= 0.8.4 =
 * Bug fix on Refresh All
 * Better replacement of relative links on imported content
 

@@ -10,18 +10,18 @@ require_once(OII_ECI_PATH . "/classes/oii-eci-scraper.php");
 
 class OII_ECI_Settings_Page {
     private $_option;
-    
+
     private $_debug = FALSE;
-    
+
     public static $cron_action_hook = "external_content_importer_cron";
-    
+
     private static $_menu_slug = "oii-eci-admin";
-    
+
     public static $option_name = "oii_eci_settings";
     private static $_option_group = "oii_eci_opotion_group";
-    
+
     private static $_setting_title = "OII External Content Importer";
-    
+
     /**
      * Class Constructor
      * Description
@@ -30,7 +30,7 @@ class OII_ECI_Settings_Page {
     {
         add_action("admin_menu", array($this, "add_plugin_page"));
         add_action("admin_init", array($this, "page_init"));
-        
+
         add_action("wp_ajax_refresh_all_external_contents", array($this, "refresh_all_external_contents"));
     }
     /**
@@ -46,7 +46,7 @@ class OII_ECI_Settings_Page {
             self::$_menu_slug, // menu_slug
             array($this, "create_admin_page") // callback
         );
-        
+
         add_action("load-" . $hook, array($this, "setup_cron"));
     }
     /**
@@ -56,12 +56,12 @@ class OII_ECI_Settings_Page {
     public function create_admin_page()
     {
         $this->_option = get_option(self::$option_name);
-        
+
         if($this->_debug)
         {
         require_once(OII_ECI_PATH . "classes/oii-eci-settings-format.php");
             $format = new OII_ECI_Settings_Format();
-            
+
             foreach($this->_option["format"] AS $expression)
             {
                 $r = htmlspecialchars_decode($expression["replace"]);
@@ -71,7 +71,7 @@ class OII_ECI_Settings_Page {
                 {
                     echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . ($key == 0 ? "<b>Open</b>: " : " <b>Close</b>: ") . htmlspecialchars($_r). "<br />";
                 }
-                
+
                 echo "<b>With</b>: " . $format->type("with", $w) . "<br />";
                 foreach(explode("\\1", $w) AS $key => $_w)
                 {
@@ -103,7 +103,7 @@ class OII_ECI_Settings_Page {
             self::$option_name,
             array($this, "sanitize")
         );
-        
+
         // Create Settings Section
         add_settings_section(
             "setting_section_id",
@@ -111,34 +111,34 @@ class OII_ECI_Settings_Page {
             array($this, "print_section_description"),
             self::$_menu_slug
         );
-        
+
         // Create Settings Field on Section
         add_settings_field(
             "format",
             "External Content Format",
             array($this, "format_callback"),
-            self::$_menu_slug, 
+            self::$_menu_slug,
             "setting_section_id"
         );
-        
+
         // Create Schedule Setting on Section
         add_settings_field(
             "schedule",
             "Schedule",
             array($this, "schedule_callback"),
-            self::$_menu_slug, 
+            self::$_menu_slug,
             "setting_section_id"
         );
-        
+
         // Create Debug Setting on Section
         add_settings_field(
             "debug",
             "Debug Mode",
             array($this, "debug_callback"),
-            self::$_menu_slug, 
+            self::$_menu_slug,
             "setting_section_id"
         );
-        
+
         add_settings_field(
             "refresh",
             "",
@@ -146,15 +146,15 @@ class OII_ECI_Settings_Page {
             self::$_menu_slug,
             "setting_section_id"
         );
-        
+
         // Register and Enqueue External Content Importer Script
         wp_register_script("oii-eci-settings-format-script", OII_ECI_URL . "js/oii-eci-settings-format-script.js", array("jquery"));
         wp_enqueue_script("oii-eci-settings-format-script");
-        
+
         // Register and Enqueue External Content Importer Script
         wp_register_script("oii-eci-settings-script", OII_ECI_URL . "js/oii-eci-settings-script.js", array("jquery", "oii-eci-settings-format-script"));
         wp_enqueue_script("oii-eci-settings-script");
-        
+
         wp_register_style("oii-eci-settings-style", OII_ECI_URL . "css/oii-eci-settings-style.css");
         wp_enqueue_style("oii-eci-settings-style");
     }
@@ -164,9 +164,9 @@ class OII_ECI_Settings_Page {
      */
     public function sanitize($input)
     {
-       
+
         $new_input = array();
-        
+
         if( isset($input["replace"]) AND isset($input["with"]))
         {
             foreach($input["replace"] AS $key => $replace)
@@ -175,17 +175,17 @@ class OII_ECI_Settings_Page {
                     "with" => esc_html(trim($input["with"][$key]))
                 );
         }
-        
+
         if(isset($input["schedule"]))
             $new_input["schedule"] = $input["schedule"];
-            
+
         if (isset($input["debug"]))
             $new_input["debug"] = $input["debug"];
         else
             $new_input["debug"] = 0;
-            
+
         return $new_input;
-        
+
     }
     /**
      * Print Section Description
@@ -202,17 +202,17 @@ class OII_ECI_Settings_Page {
     public function format_callback()
     {
         $format = (is_array($this->_option["format"])) ? $this->_option["format"] : array(array());
-        
+
         foreach($format AS $key => $expression)
         {
             echo "<div class='regex'" . ($key ? " style='margin-top: 15px'" : "") . ">";
                 echo "Replace <input type='text' class='form-element regex-replace' name='" . self::$option_name . "[replace][]' value='" . $expression["replace"] . "' /> with <input type='text' class='form-element regex-with' name='" . self::$option_name . "[with][]' value='" . $expression["with"] . "' />";
-            
+
             if($key == 0)
                 echo "<button type='button' data-name='" . self::$option_name . "' id='oii-eci-new-regex' class='button'>New</button>";
             else
                 echo "<a href='#' style='color: #555; text-decoration: none'><span class='delete-regex dashicons dashicons-trash' style='vertical-align: text-bottom'></span></a>";
-                
+
             echo "</div>";
         }
         echo "<p class='description'>
@@ -233,14 +233,16 @@ class OII_ECI_Settings_Page {
      */
     public function schedule_callback()
     {
+        $next_sched = wp_next_scheduled( self::$cron_action_hook );
+
         echo "<select id='schedule' class='form-element' name='" . self::$option_name ."[schedule]'>";
-        
+
         echo "<option value=''>&nbsp;</option>";
         foreach(array("hourly" => "Hourly", "twicedaily" => "Twice Daily", "daily" => "Daily") AS $key => $schedule)
             echo "<option value='" . $key . "'" . ($this->_option["schedule"] == $key ? " selected" : "" ) . ">" . $schedule . "</option>";
-        
+
         echo "</select>";
-        echo "<p class='description'>The schedule for updating content.</p>";
+        echo "<p class='description'>The schedule for updating content.<br /><b>Next Scheduled:</b> " . date("Y-m-d H:i:s", $next_sched) . "</p>";
     }
     /**
      * Debug Mode Callback
@@ -261,15 +263,15 @@ class OII_ECI_Settings_Page {
     public function refresh_all_callback()
     {
         echo "<div style='display: inline-block;'>
-            <div class='updated notice hidden'> 
+            <div class='updated notice hidden'>
                 <p><strong></strong></p>
             </div>
             <button type='button' class='button' id='refresh-all-external-contents' data-loading-text='Refreshing...'>Refresh All Contents Now</button>
             <span class='spinner' style='float: none;'></span>
-            
+
             <p class='description' data-default-text='Refresh all existing external contents.'>Refresh all existing external contents.</p>
         </div>";
-        
+
     }
     /**
      * Refresh All External Contents
@@ -278,7 +280,7 @@ class OII_ECI_Settings_Page {
     public function refresh_all_external_contents()
     {
         OII_ECI_Scraper::run();
-        
+
         wp_die();
     }
     /**
@@ -290,11 +292,11 @@ class OII_ECI_Settings_Page {
         if(isset($_GET["settings-updated"]) && $_GET["settings-updated"])
         {
             $option = get_option(self::$option_name);
-            
+
             if($option["schedule"])
             {
                 $timestamp = wp_next_scheduled(self::$cron_action_hook);
-                
+
                 // Schedule
                 if($timestamp == FALSE)
                 {
@@ -304,7 +306,7 @@ class OII_ECI_Settings_Page {
                 {
                     // Re-schedule
                     $schedule = wp_get_schedule(self::$cron_action_hook);
-                    
+
                     if(strcmp($schedule, $option["schedule"]))
                     {
                         wp_unschedule_event($timestamp, self::$cron_action_hook);
