@@ -9,9 +9,11 @@
 <div id="external-content-wrap">
 <?php
     $external_content_collection = $this->get_external_contents($post->ID);
-
+    
     foreach($external_content_collection AS $key => $external_content)
-    { ?>
+    {
+        if (property_exists($external_content, "id")) {
+        ?>
     <div class="external-content-item-wrap">
         <input type="hidden" name="external-content-id[]" value="<?php echo (int) $external_content->id; ?>" />
         
@@ -49,5 +51,6 @@
         </div>
     </div>
 <?php
+        }
     } ?>
 </div>
