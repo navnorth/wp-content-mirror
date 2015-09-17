@@ -149,6 +149,8 @@ class OII_ECI_Metabox {
                 }
 
                 update_post_meta($post_id, self::$meta_key, $external_contents);
+            } else {
+                delete_post_meta($post_id, self::$meta_key);
             }
         }
     }
