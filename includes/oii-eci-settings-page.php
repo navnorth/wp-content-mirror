@@ -58,7 +58,7 @@ class OII_ECI_Settings_Page {
         $this->_option = get_option(self::$option_name);
 
         // trying to debug error logging.
-        error_log("OII External Content Importer - settings page loaded.");
+        // error_log("OII External Content Importer - settings page loaded.");
 
         if($this->_debug)
         {

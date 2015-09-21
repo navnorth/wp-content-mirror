@@ -3,7 +3,7 @@
 Contributors: Navigation North
 Tags: mirror, importer, external content
 Requires at least: 3.0.1
-Tested up to: 4.2.2
+Tested up to: 4.2.4
 Stable tag: 4.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -27,6 +27,13 @@ No Frequently Asked Questions
 No screenshots available.
 
 ### Changelog ###
+
+= 0.8.7 =
+* Bug fix - deleting all content items from a page
+* Better debugging for certain operations
+
+= 0.8.6 =
+* Support for Awards template
 
 = 0.8.4 =
 * Bug fix on Refresh All
