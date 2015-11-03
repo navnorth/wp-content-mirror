@@ -168,7 +168,7 @@ class OII_ECI_External_Content {
         {
             try
             {
-                $this->content = $this->extract();    
+                $this->content = $this->extract();
             }
             catch(Exception $e)
             {
@@ -667,19 +667,29 @@ class OII_ECI_External_Content {
         //replace base url
         $base_rep_url = $base_urls['scheme']."://".$base_urls['host'];
         
+        //used to hold all links already replaced
+        $matched_urls = array();
+        
         if(count($match[1]))
         {
             for($j=0; $j<count($match[1]); $j++)
             {
                 if ((strpos($match[1][$j],"http")===false) && (strpos($match[1][$j],"mailto")===false)){
                     $extUrlPath = substr($this->url, 0, strrpos($this->url, '/') + 1);
-                    if (strpos($match[1][$j], '/')===0)
-                        $html = str_replace($match[1][$j], $base_rep_url.$match[1][$j], $html);
-                    else
-                        $html = str_replace($match[1][$j], $extUrlPath.$match[1][$j], $html);
+                    
+                    if (strpos($match[1][$j], '/')===0){
+                        if (!in_array($match[1][$j], $matched_urls))
+                            $html = str_replace($match[1][$j], $base_rep_url.$match[1][$j], $html);
+                    }
+                    else {
+                        if (!in_array($match[1][$j], $matched_urls))
+                            $html = str_replace($match[1][$j], $extUrlPath.$match[1][$j], $html);
+                    }
                 } else {
-                    $html = str_replace($match[1][$j],$this->_replace_internal_link($match[1][$j]),$html);
+                    if (!in_array($match[1][$j], $matched_urls))
+                        $html = str_replace($match[1][$j],$this->_replace_internal_link($match[1][$j]),$html);
                 }
+                $matched_urls[] = $match[1][$j];
             }
         }
         return $html;
