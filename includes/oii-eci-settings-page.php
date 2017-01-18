@@ -93,6 +93,12 @@ class OII_ECI_Settings_Page {
             ?>
             </form>
         </div>
+
+        <div class="plugin-footer">
+            <div class="plugin-info"><?php echo OII_ECI_PLUGIN_NAME . " " . OII_ECI_VERSION .""; ?></div>
+            <div class="plugin-link"><a href='<?php echo OII_ECI_PLUGIN_INFO ?>' target='_blank'>More info</a></div>
+            <div class="clear"></div>
+        </div>
         <?php
     }
     /**

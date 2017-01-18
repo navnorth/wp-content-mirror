@@ -1,13 +1,16 @@
 <?php
 /*
- Plugin Name: OII External Content Mirror
- Plugin URI: http://www.navigationnorth.com/wordpress/wp-content-mirror
- Description: Automatically import HTML content from external web pages and append to existing WP pages.
- Version: 0.8.7
- Author: Navigation North
- Author URI: http://www.navigationnorth.com
+ Plugin Name:  External Content Mirror
+ Plugin URI:   https://www.navigationnorth.com/solutions/wordpress/content-mirror-plugin
+ Description:  Automatically import HTML content from external web pages and append to existing WP pages.
+ Version:      0.8.8
+ Author:       Navigation North
+ Author URI:   https://www.navigationnorth.com
+ Text Domain:  wp-stories-posts
+ License:      GPL3
+ License URI:  https://www.gnu.org/licenses/gpl-3.0.html
 
- Copyright (C) 2015 Navigation North
+ Copyright (C) 2017 Navigation North
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -27,6 +30,9 @@ define("OII_ECI_PATH", plugin_dir_path(__FILE__));
 define("OII_ECI_URL", plugin_dir_url(__FILE__));
 define("OII_ECI_PLUGIN_DOMAIN", "oii-external-content-importer");
 define("OII_ECI_TEMPLATE_DIRECTORY", "oii-eci-template");
+define("OII_ECI_PLUGIN_NAME", "External Content Mirror");
+define("OII_ECI_PLUGIN_INFO", "https://www.navigationnorth.com/solutions/wordpress/content-mirror-plugin");
+define("OII_ECI_VERSION", "0.8.8");
 
 include_once(OII_ECI_PATH . "/includes/oii-eci-settings-page.php");
 include_once(OII_ECI_PATH . "/includes/oii-eci-metabox.php");
