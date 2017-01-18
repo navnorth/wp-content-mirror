@@ -18,3 +18,7 @@
     margin-bottom: 5px;
     font-style: italic;
 }
+.plugin-footer { margin:20px 15px 0 0; border-top: 1px solid #ccc; text-align: right; padding:8px;}
+.plugin-info {  display:inline-block; }
+.plugin-link { display:inline-block; margin-left:10px; }
+.clear { clear:both; }
