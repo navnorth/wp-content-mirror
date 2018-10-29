@@ -199,6 +199,36 @@ jQuery(document).ready(function() {
             change_direction()
         })
     })
+    
+    /**
+     * Disable External Content jQuery Event Handler
+     * Description
+     */
+    jQuery('#eci-metabox').delegate('.disable-external-content', 'click', function(event) {
+        event.preventDefault()
+        
+        var parent = jQuery(this).parents('.external-content-item-wrap');
+        parent.addClass('oii-grey-bg');
+        parent.find("input[type='text']").attr('disabled', true);
+        jQuery(this).addClass('oii-hidden');
+        jQuery('.enable-external-content').removeClass('oii-hidden');
+    })
+    
+    /**
+     * Disable External Content jQuery Event Handler
+     * Description
+     */
+    jQuery('#eci-metabox').delegate('.enable-external-content', 'click', function(event) {
+        event.preventDefault()
+        
+        var parent = jQuery(this).parents('.external-content-item-wrap');
+        parent.removeClass('oii-grey-bg');
+        parent.find("input[type='text']").attr('disabled', false);
+        jQuery(this).addClass('oii-hidden');
+        jQuery('.disable-external-content').removeClass('oii-hidden');
+    })
+    
+    
     /**
      * Refresh External Content jQuery Event Handler
      * Description

@@ -45,9 +45,10 @@
                 <input type="text" name="external-content-end[]" value="<?php echo $external_content->end; ?>" />
             </div>
             <div class="col span_2_of_12">
-                <a href="external-content/<?php echo (int) $external_content->id; ?>" class="refresh-external-content"><span class="dashicons dashicons-update"></span></a>
-                <a href="#" class="disable-external-content"><span class="dashicons dashicons-dismiss"></span></a>
-                <a href="#" class="delete-external-content"><span class="dashicons dashicons-trash"></span></a>
+                <a href="external-content/<?php echo (int) $external_content->id; ?>" class="refresh-external-content" title="Refresh external content"><span class="dashicons dashicons-update"></span></a>
+                <a href="#" class="disable-external-content" title="Disable external content config"><span class="dashicons dashicons-dismiss"></span></a>
+                <a href="#" class="enable-external-content oii-hidden" title="Enable external content config"><span class="dashicons dashicons-yes"></span></a>
+                <a href="#" class="delete-external-content" title="Delete external content"><span class="dashicons dashicons-trash"></span></a>
             </div>
         </div>
     </div>
