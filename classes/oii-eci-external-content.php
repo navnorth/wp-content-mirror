@@ -41,6 +41,8 @@ class OII_ECI_External_Content {
     
     public $id = 0;
     
+    public $active = true;
+    
     public $post_id = 0;
     
     public $order = 1;
@@ -97,7 +99,7 @@ class OII_ECI_External_Content {
         $post_meta = get_post_meta($post_id, OII_ECI_Metabox::$meta_key, TRUE);
     
         $external_contents = array();
-    
+        
         if(is_array($post_meta) == FALSE)
             return $external_contents;
         
@@ -146,7 +148,7 @@ class OII_ECI_External_Content {
      */
     public function as_postmeta()
     {
-        $postmeta = array_fill_keys(array("id", "order", "header", "url", "start", "end"), NULL);
+        $postmeta = array_fill_keys(array("id", "order", "header", "url", "start", "end", "active"), NULL);
         
         foreach(array_keys($postmeta) AS $meta)
         {

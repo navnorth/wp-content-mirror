@@ -139,6 +139,7 @@ class OII_ECI_Metabox {
 
                     $external_content->start = esc_html($_REQUEST["external-content-start"][$key]);
                     $external_content->end = esc_html($_REQUEST["external-content-end"][$key]);
+                    $external_content->active = $_REQUEST["external-content-active"][$key]? true: false;
 
                     $external_content->id = ($_REQUEST["external-content-id"][$key]) ? (int) $_REQUEST["external-content-id"][$key] : $id;
 

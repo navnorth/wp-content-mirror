@@ -16,7 +16,7 @@
         ?>
     <div class="external-content-item-wrap">
         <input type="hidden" name="external-content-id[]" value="<?php echo (int) $external_content->id; ?>" />
-        
+        <input type="checkbox" class="oii-hidden" name="external-content-active[]" <?php checked($external_content->active, true); ?> />
         <div class="section group external-content-item">
             <div class="col span_2_of_12"><label>URL</label></div>
             <div class="col span_3_of_12">
@@ -46,6 +46,7 @@
             </div>
             <div class="col span_2_of_12">
                 <a href="external-content/<?php echo (int) $external_content->id; ?>" class="refresh-external-content"><span class="dashicons dashicons-update"></span></a>
+                <a href="#" class="disable-external-content"><span class="dashicons dashicons-dismiss"></span></a>
                 <a href="#" class="delete-external-content"><span class="dashicons dashicons-trash"></span></a>
             </div>
         </div>
