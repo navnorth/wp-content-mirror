@@ -77,6 +77,14 @@ jQuery(document).ready(function() {
                     value: 0
                 })
                 .appendTo(item_wrap)
+            
+            jQuery('<input />').attr({
+                    type: 'checkbox',
+                    name: 'external-content-active[]',
+                    class: 'oii-hidden',
+                    checked: true
+                })
+                .appendTo(item_wrap)
                 
         var text_wrap = jQuery('<div />').attr({class: 'section group external-content-item'})
             // URL Label 
@@ -173,6 +181,26 @@ jQuery(document).ready(function() {
                 .append(
                     jQuery('<a />').attr({
                             href: '#',
+                            class: 'disable-external-content'
+                        })
+                        .append(
+                            jQuery('<span />').attr({class: 'dashicons dashicons-dismiss'})
+                        )
+                )
+                .append(' ')
+                .append(
+                    jQuery('<a />').attr({
+                            href: '#',
+                            class: 'enable-external-content oii-hidden'
+                        })
+                        .append(
+                            jQuery('<span />').attr({class: 'dashicons dashicons-yes'})
+                        )
+                )
+                .append(' ')
+                .append(
+                    jQuery('<a />').attr({
+                            href: '#',
                             class: 'delete-external-content'
                         })
                         .append(
@@ -209,13 +237,15 @@ jQuery(document).ready(function() {
         
         var parent = jQuery(this).parents('.external-content-item-wrap');
         parent.addClass('oii-grey-bg');
-        parent.find("input[type='text']").attr('disabled', true);
+        parent.find("input[type='text']").attr('readonly', true);
+        parent.find("input.oii-external-content-active").attr("checked", false);
+        parent.find('.enable-external-content').removeClass('oii-hidden');
+        
         jQuery(this).addClass('oii-hidden');
-        jQuery('.enable-external-content').removeClass('oii-hidden');
     })
     
     /**
-     * Disable External Content jQuery Event Handler
+     * Enable External Content jQuery Event Handler
      * Description
      */
     jQuery('#eci-metabox').delegate('.enable-external-content', 'click', function(event) {
@@ -223,9 +253,11 @@ jQuery(document).ready(function() {
         
         var parent = jQuery(this).parents('.external-content-item-wrap');
         parent.removeClass('oii-grey-bg');
-        parent.find("input[type='text']").attr('disabled', false);
+        parent.find("input[type='text']").removeAttr('readonly');
+        parent.find("input.oii-external-content-active").attr("checked",true);
+        parent.find('.disable-external-content').removeClass('oii-hidden');
+        
         jQuery(this).addClass('oii-hidden');
-        jQuery('.disable-external-content').removeClass('oii-hidden');
     })
     
     
