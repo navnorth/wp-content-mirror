@@ -199,31 +199,38 @@ class OII_ECI_Metabox {
             {
                 if($external_content->id == $id)
                 {
-                    $external_content->url = sanitize_text_field($_POST["url"]);
-                    $external_content->header = sanitize_text_field($_POST["header"]);
-                    $external_content->start = esc_html($_POST["open_tag"]);
-                    $external_content->end = esc_html($_POST["close_tag"]);
-
-                    $new_external_content = $external_content;
+                    //Check if config is active
+                    if ($external_content->active==true) {
+                        $external_content->url = sanitize_text_field($_POST["url"]);
+                        $external_content->header = sanitize_text_field($_POST["header"]);
+                        $external_content->start = esc_html($_POST["open_tag"]);
+                        $external_content->end = esc_html($_POST["close_tag"]);
+    
+                        $new_external_content = $external_content;
+                    }
                 }
 
                 array_push($new_external_contents, $external_content->as_postmeta());
             }
-
+            
             if(count($new_external_contents))
                 update_post_meta($post_id, self::$meta_key, $new_external_contents);
-
+            
             if($new_external_content)
             {
                 try
                 {
-                    $new_external_content->update();
-                    $response = array("status" => "success", "success" => array("message" => "Section content is now updated."));
+                    if ($new_external_content->active==true){
+                        $new_external_content->update();
+                        $response = array("status" => "success", "success" => array("message" => "Section content is now updated."));
+                    } 
                 }
                 catch(Exception $e)
                 {
                     $response = array("status" => "error", "error" => array("message" => $e->getMessage()));
                 }
+            } else {
+                        $response = array("status" => "error", "error" => array("message" => "config is inactive"));
             }
         }
         else

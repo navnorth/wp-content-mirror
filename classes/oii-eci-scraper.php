@@ -61,7 +61,9 @@ class OII_ECI_Scraper {
                     else {
                         try
                         {
-                            $external_content->update();
+                            if ($external_content->active==true) {
+                                $external_content->update();
+                            }
                         }
                         catch(Exception $e)
                         {
