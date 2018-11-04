@@ -38,6 +38,7 @@ include_once(OII_ECI_PATH . "/includes/oii-eci-settings-page.php");
 include_once(OII_ECI_PATH . "/includes/oii-eci-metabox.php");
 include_once(OII_ECI_PATH . "/classes/oii-eci-external-content.php");
 include_once(OII_ECI_PATH . "/classes/oii-eci-scraper.php");
+include_once(OII_ECI_PATH . "/classes/oii-eci-helper.php");
 
 $_option = get_option(OII_ECI_Settings_Page::$option_name);
 $_debug = $_option['debug'];
@@ -46,6 +47,7 @@ if(is_admin())
 {
     $oii_eci_settings_page = new OII_ECI_Settings_Page();
     $oii_eci_metabox = new OII_ECI_Metabox();
+    $oii_eci_helper = new OII_ECI_Helper();
 }
 
 register_activation_hook(__FILE__, "activate_oii_eci_plugin");
