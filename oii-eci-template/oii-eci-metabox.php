@@ -2,6 +2,7 @@
 
 <div class="external-content-new-wrap">
     <div class="section group">
+        <button type="button" id="migrate-external-content" class="button">Migrate Content</button>
         <button type="button" id="new-external-content" class="button">New External Content</button>
     </div>
 </div>
