@@ -31,8 +31,10 @@ class OII_ECI_Helper {
         }
         
         foreach($active_contents as $acontent){
-            $acontent->update();
-            $xcontent = $acontent->output_content();
+            if ($acontent->check_url_status()){
+                $acontent->update();
+                $xcontent = $acontent->output_content();
+            }
         }
     }
     

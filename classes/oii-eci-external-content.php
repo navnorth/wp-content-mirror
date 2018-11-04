@@ -266,6 +266,22 @@ class OII_ECI_External_Content {
         
         return $this->_apply_format($html);
     }
+    
+    /**
+     * Checks for 404, 302, and 301 HTTP Response code
+     *
+     * @return boolean True/False
+     **/
+    public function check_url_status(){
+        $headers = get_headers($this->url);
+        $status = $headers[0];
+        
+        if (strpos($status,"302") || strpos($status,"301") || strpos($status,"404"))
+            return false;
+        else
+            return true;
+    }
+    
     /**
      * Extract
      * Extract content from URL
