@@ -215,6 +215,49 @@ jQuery(document).ready(function() {
         
         change_direction()
     })
+    
+    /**
+     * Migrate External Content jQuery Event Handler
+     * Description
+     */
+    jQuery('#migrate-external-content').on('click', function(event) {
+        
+        var proceed = confirm('This option will copy the external content into this WordPress page and deactivate future content mirroring. \nWould you like to proceed?');
+        
+        if (proceed==true) {
+            event.preventDefault()
+            var my = jQuery(this)
+            var section = my.parents('.external-content-item-wrap')
+            
+            my.find('span.dashicons').addClass('fa-spin')
+            
+            var post_id = jQuery('#post_ID').val()
+            
+            if (post_id) {
+                
+                jQuery.post(ajaxurl, {
+                    action: 'migrate_external_content',
+                    post_id: post_id
+                }, function(response) {
+                    try {
+                        response = jQuery.parseJSON(response)
+                        
+                        if ('success' == response.status) {
+                            notice(section, response.success.message, 'success')
+                        } else {
+                            notice(section, response.error.message, 'danger')
+                        }
+                        
+                    } catch(e) {
+                    
+                    }
+                    my.find('span.dashicons').removeClass('fa-spin')
+                })
+                
+            }
+        }
+    })
+    
     /**
      * Delete External Content jQuery Event Handler
      * Description
@@ -324,6 +367,8 @@ jQuery(document).ready(function() {
             notice(section, 'Save the page first before refreshing this external content.', 'danger')
         }
     })
+    
+    
     /**
      * Move External Content jQuery Event Handler
      * Description
