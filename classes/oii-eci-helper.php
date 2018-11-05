@@ -9,20 +9,51 @@ require_once(OII_ECI_PATH . "/includes/oii-eci-settings-page.php");
 class OII_ECI_Helper {
     private $_debug;
     
+    public $contents = array();
+    
+    public $post_id = 0;
+    
     public function __construct(){
         
     }
+    
+    public function migrate_external_content($post_id) {
+        $this->post_id = $post_id;
+        $this->sync_page();
+        $acontents = $this->append_contents();
+        
+        $post = get_post($post_id);
+        $content = $post->post_content;
+        
+        $post = array(
+                      'ID' => $this->post_id,
+                      'post_content' => $content.$acontents
+                      );
+        
+        $pId = wp_update_post($post, true);
+        
+        if (is_wp_error($pId)){
+            
+            if($this->_debug == 1)
+                error_log("The following errors occurred: ");
+                
+            $errors = $pId->get_error_messages();
+            foreach ($errors as $error){
+                error_log($error);
+            }
+        }
+    }
 
-    public function sync_page($page_id) {
+    public function sync_page() {
         
         $_option = get_option(OII_ECI_Settings_Page::$option_name);
         $this->_debug = $_option["debug"];
 
         if($this->_debug == 1)
-            error_log("syncing external content on page " . $page_id);
+            error_log("syncing external content on page " . $this->post_id);
         
         $active_contents = array();
-        $external_contents = OII_ECI_External_Content::get_by_post_id($page_id);
+        $external_contents = OII_ECI_External_Content::get_by_post_id($this->post_id);
         
         foreach($external_contents as $content){
             if ($content->active==true){
@@ -30,12 +61,27 @@ class OII_ECI_Helper {
             }
         }
         
-        foreach($active_contents as $acontent){
-            if ($acontent->check_url_status()){
-                $acontent->update();
-                $xcontent = $acontent->output_content();
+        $this->contents = $active_contents;
+        
+    }
+    
+    public function append_contents( ) {
+        $content = null;
+        
+        if (count($this->contents)>0){
+            foreach($this->contents as $acontent){
+                if ($acontent->content) {
+                    
+                    $timestamp = date("m/d/Y h:i:s");
+                    $prep = "<!-- Migrated: " . $timestamp . " --><!-- URL: " . $content->url . " --><br/>";
+                    $acontent->content = $prep.$acontent->content;
+                    $content .= $acontent->content;
+                    
+                }
             }
         }
+        
+        return $content;
     }
     
 }

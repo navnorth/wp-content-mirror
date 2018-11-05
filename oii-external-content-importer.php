@@ -48,7 +48,7 @@ if(is_admin())
     $oii_eci_settings_page = new OII_ECI_Settings_Page();
     $oii_eci_metabox = new OII_ECI_Metabox();
     $oii_eci_helper = new OII_ECI_Helper();
-    //$oii_eci_helper->sync_page(3673);
+    //$oii_eci_helper->migrate_external_content(3673);
 }
 
 register_activation_hook(__FILE__, "activate_oii_eci_plugin");
