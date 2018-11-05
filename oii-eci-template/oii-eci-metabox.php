@@ -1,16 +1,25 @@
+<?php
+    $config_active = false;
+    $external_content_collection = $this->get_external_contents($post->ID);
+    
+    foreach($external_content_collection AS $key => $external_content) {
+        if ($external_content->active==true) {
+            $config_active = true;
+            break;
+        }
+    }
+?>
 <input type="hidden" id="eci-template" data-template="<?php echo implode("|", OII_ECI_Metabox::$template); ?>" />
 
 <div class="external-content-new-wrap">
     <div class="section group">
-        <button type="button" id="migrate-external-content" class="button">Migrate Content</button>
+        <button type="button" id="migrate-external-content" class="button" <?php if ($config_active==false): ?>disabled<?php endif; ?>>Migrate Content</button>
         <button type="button" id="new-external-content" class="button">New External Content</button>
     </div>
 </div>
 
 <div id="external-content-wrap">
 <?php
-    $external_content_collection = $this->get_external_contents($post->ID);
-    
     foreach($external_content_collection AS $key => $external_content)
     {
         if (property_exists($external_content, "id")) {
