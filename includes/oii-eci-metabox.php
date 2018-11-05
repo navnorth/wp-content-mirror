@@ -20,6 +20,7 @@ class OII_ECI_Metabox {
         add_action("load-post.php", array($this, "setup"));
         add_action("load-post-new.php", array($this, "setup"));
         add_action("wp_ajax_refresh_external_content", array($this, "refresh_external_content"));
+        add_action("wp_ajax_migrate_external_content", array($this, "migrate_external_content"));
     }
     /**
      * Setup Metabox
@@ -240,6 +241,36 @@ class OII_ECI_Metabox {
 
         echo json_encode($response);
 
+        wp_die();
+    }
+    
+    
+    /**
+     * Migrate External Content
+     * Description
+     */
+    public function migrate_external_content()
+    {
+        require_once(OII_ECI_PATH . "classes/oii-eci-helper.php");
+        $oii_eci_helper = new OII_ECI_Helper();
+        
+        $post_id = (int) $_POST["post_id"];
+        
+        if($this->_debug==1)
+            error_log( 'migrating external content on post_id ' . $post_id );
+
+        try {
+            $mSuccess = $oii_eci_helper->migrate_external_content($post_id);
+            if ($mSuccess==true)
+                $response = array("status" => "success", "success" => array("message" => "Page migration complete!"));
+            else
+                $response = array("status" => "error", "error" => array("message" => implode(",",$mSuccess)));
+        } catch(Exception $e) {
+            $response = array("status" => "error", "error" => array("message" => $e->getMessage()));
+        }
+        
+        echo json_encode($response);
+            
         wp_die();
     }
 }

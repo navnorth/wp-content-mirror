@@ -46,7 +46,11 @@ class OII_ECI_Helper {
             foreach ($errors as $error){
                 error_log($error);
             }
+            
+            return $errors;
         }
+        
+        return true;
     }
 
     private function sync_page() {
@@ -78,7 +82,7 @@ class OII_ECI_Helper {
                 if ($acontent->content) {
                     
                     $timestamp = date("m/d/Y h:i:s");
-                    $prep = "<!-- Migrated: " . $timestamp . " --><!-- URL: " . $content->url . " --><br/>";
+                    $prep = "<!-- Migrated: " . $timestamp . " --><!-- URL: " . $content->url . " -->";
                     $acontent->content = $prep.$acontent->content;
                     $content .= $acontent->content;
                     

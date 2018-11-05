@@ -240,10 +240,11 @@ jQuery(document).ready(function() {
                     post_id: post_id
                 }, function(response) {
                     try {
+                        console.log(response);
                         response = jQuery.parseJSON(response)
                         
                         if ('success' == response.status) {
-                            notice(section, response.success.message, 'success')
+                            document.location.reload(true);
                         } else {
                             notice(section, response.error.message, 'danger')
                         }
