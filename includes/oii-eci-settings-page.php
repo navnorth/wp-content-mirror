@@ -33,6 +33,7 @@ class OII_ECI_Settings_Page {
 
         add_action("wp_ajax_refresh_all_external_contents", array($this, "refresh_all_external_contents"));
         add_action("wp_ajax_migrate_all_external_contents", array($this, "migrate_all_external_contents"));
+        add_action("wp_ajax_reset_all_external_contents", array($this, "_reset_migrate_count"));
     }
     /**
      * Add Plugin Page
@@ -320,7 +321,7 @@ class OII_ECI_Settings_Page {
             <div class='updated notice hidden'>
                 <p><strong></strong></p>
             </div>
-            <button type='button' class='button' id='migrate-all-external-contents' data-loading-text='Migrating...' ".$disabled.">Migrate All Contents</button>
+            <button type='button' class='button' id='migrate-all-external-contents' data-loading-text='Migrating...' ".$disabled.">Migrate All Contents</button><button type='button' class='button hidden' id='reset-all-external-contents'>Reset Migrate Count</button>
             <span class='spinner' style='float: none;'></span>
 
             <p class='description' data-default-text='Migrating all external contents.'>".$batch_msg."</p>
