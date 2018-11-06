@@ -82,8 +82,8 @@ class OII_ECI_Helper {
         
         if (count($this->contents)>0){
             foreach($this->contents as $acontent){
+                $acontent->update();
                 if ($acontent->content) {
-                    
                     $timestamp = date("m/d/Y h:i:s");
                     $prep = "<!-- Migrated: " . $timestamp . " --><!-- URL: " . $content->url . " -->";
                     $acontent->content = $prep.$acontent->content;
