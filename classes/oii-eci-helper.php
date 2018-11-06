@@ -27,9 +27,12 @@ class OII_ECI_Helper {
         $post = get_post($post_id);
         $content = $post->post_content;
         
+        if ($acontents)
+            $content .= $acontents;
+        
         $post = array(
                       'ID' => $this->post_id,
-                      'post_content' => $content.$acontents
+                      'post_content' => $content
                       );
         
         $this->deactivate_external_configs();
