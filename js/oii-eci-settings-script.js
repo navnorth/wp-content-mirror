@@ -173,4 +173,39 @@ jQuery(document).ready(function() {
             })
         }
     })
+    
+    /**
+     * Refresh All Contents jQuery Event Handler
+     * Description
+     */
+    jQuery('#migrate-all-external-contents').click(function() {
+        if (window.confirm("Are you sure you want to migrate all external contents? \nThis will take some time and will process 50 pages at a time.")) {
+            var button = jQuery(this)
+            var notice = button.parent().find('.notice')
+            var spinner = button.parent().find('.spinner')
+            var normal = button.text()
+            var desc = button.parent().find('.description')
+            
+            button.addClass('disabled')
+                .text(jQuery(this).data('loading-text'))
+            
+            spinner.addClass('is-active')
+            
+            notice.addClass('hidden')
+                .find('strong').text('')
+            
+            desc.css('color', '#666').text(desc.data('default-text'))
+                
+            jQuery.post(ajaxurl, {
+                action: 'migrate_all_external_contents'
+            }, function(response) {
+                notice.removeClass('hidden').find('strong').text('Contents successfully migrated.')
+                desc.css('color', '#3c763d').text('Contents successfully migrated.')
+            })
+            .always(function() {
+                button.text(normal).removeClass('disabled')
+                spinner.removeClass('is-active')
+            })
+        }
+    })
 })

@@ -32,6 +32,7 @@ class OII_ECI_Settings_Page {
         add_action("admin_init", array($this, "page_init"));
 
         add_action("wp_ajax_refresh_all_external_contents", array($this, "refresh_all_external_contents"));
+        add_action("wp_ajax_migrate_all_external_contents", array($this, "migrate_all_external_contents"));
     }
     /**
      * Add Plugin Page
@@ -299,14 +300,30 @@ class OII_ECI_Settings_Page {
      */
     public function migrate_all_callback()
     {
+        $batch_msg = "Migrate all external contents.";
+        $page_count = 0;
+        $disabled = "";
+        
+        $pages = $this->get_pages_for_migration();
+        $page_count = $pages->found_posts; // Get total pages that can be migrated.
+        $batch_count = get_option("oii_migrate_count"); // Get processed migrated pages
+        
+        if ($batch_count) {
+            if ($batch_count>=$page_count) {
+                $disabled = "disabled";
+                $batch_msg = "All external contents have been migrated.";
+            } else
+                $batch_msg = $count." pages already migrated. Migrate next 50 pages.";
+        }
+        
         echo "<div style='display: inline-block;'>
             <div class='updated notice hidden'>
                 <p><strong></strong></p>
             </div>
-            <button type='button' class='button' id='migrate-all-external-contents' data-loading-text='Migrating...'>Migrate All Contents</button>
+            <button type='button' class='button' id='migrate-all-external-contents' data-loading-text='Migrating...' ".$disabled.">Migrate All Contents</button>
             <span class='spinner' style='float: none;'></span>
 
-            <p class='description' data-default-text='Migrating all external contents.'>Migrate all external contents.</p>
+            <p class='description' data-default-text='Migrating all external contents.'>".$batch_msg."</p>
         </div>";
 
     }
@@ -321,6 +338,81 @@ class OII_ECI_Settings_Page {
 
         wp_die();
     }
+    
+    /**
+     * Migrate All External Contents
+     */
+    public function migrate_all_external_contents() {
+        
+        require_once(OII_ECI_PATH . "/classes/oii-eci-helper.php");
+        
+        if ($count=get_option("oii_migrate_count")){
+            $pages = $this->get_pages_for_migration($count);
+        } else {
+            $pages = $this->get_pages_for_migration();
+        }
+        
+        $index = 0;
+        if ($pages->have_posts()){
+            
+            $oii_eci_helper = new OII_ECI_Helper();
+            
+            while($pages->have_posts()) {
+                $pages->the_post();
+                
+                $post_id = get_the_ID();
+                
+                try {
+                    $mSuccess = $oii_eci_helper->migrate_external_content($post_id);
+                    if ($mSuccess==true)
+                        $response = array("status" => "success", "success" => array("message" => "Page migration complete!"));
+                    else
+                        $response = array("status" => "error", "error" => array("message" => implode(",",$mSuccess)));
+                } catch(Exception $e) {
+                    $response = array("status" => "error", "error" => array("message" => $e->getMessage()));
+                }
+                
+                $index++;
+            }
+        }
+        
+        wp_reset_postdata();
+        
+        if (!$count){
+            add_option("oii_migrate_count", $index);
+        } else {
+            update_option("oii_migrate_count", $count+$index);
+        }
+        
+        wp_die();
+    }
+    
+    public function _reset_migrate_count(){
+        delete_option("oii_migrate_count");
+    }
+    
+    /**
+     * Query All Pages with External Contents
+     **/
+    private function get_pages_for_migration($offset=null){
+        
+        require_once(OII_ECI_PATH . "/includes/oii-eci-metabox.php");
+        
+        $params = array(
+            'post_type' => 'page',
+            'posts_per_page' => 50,
+            'meta_key' => '_wp_page_template',
+            'meta_value' => OII_ECI_Metabox::$template        
+        );
+        
+        if ($offset)
+            $params['offset'] = $offset;
+        
+        $pages = new WP_Query($params);
+        
+        return $pages;
+    }
+    
     /**
      * Setup Cron
      * Description
