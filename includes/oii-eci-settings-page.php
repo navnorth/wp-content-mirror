@@ -155,6 +155,14 @@ class OII_ECI_Settings_Page {
             self::$_menu_slug,
             "setting_section_id"
         );
+        
+         add_settings_field(
+            "migrate",
+            "",
+            array($this, "migrate_all_callback"),
+            self::$_menu_slug,
+            "setting_section_id"
+        );
 
         // Register and Enqueue External Content Importer Script
         wp_register_script("oii-eci-settings-format-script", OII_ECI_URL . "js/oii-eci-settings-format-script.js", array("jquery"));
@@ -282,6 +290,27 @@ class OII_ECI_Settings_Page {
         </div>";
 
     }
+    
+    /**
+     * Refresh Callback
+     * Description
+     *
+     * @since 1.0.2
+     */
+    public function migrate_all_callback()
+    {
+        echo "<div style='display: inline-block;'>
+            <div class='updated notice hidden'>
+                <p><strong></strong></p>
+            </div>
+            <button type='button' class='button' id='migrate-all-external-contents' data-loading-text='Migrating...'>Migrate All Contents</button>
+            <span class='spinner' style='float: none;'></span>
+
+            <p class='description' data-default-text='Migrating all external contents.'>Migrate all external contents.</p>
+        </div>";
+
+    }
+    
     /**
      * Refresh All External Contents
      * Description
