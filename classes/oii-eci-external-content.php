@@ -575,31 +575,33 @@ class OII_ECI_External_Content {
      */
     public function output_content()
     {
-        // Section Header
-        $content = ($this->header) ? "<h2>" . $this->header . "</h2>" : NULL;
-        // Section Anchor
-        $content .= "<a id='ext-content-" . $this->order . "'></a>";
-        
-        if($this->content == NULL)
-        {
-            global $wpdb;
+        if ($this->active!==false) {
+            // Section Header
+            $content = ($this->header) ? "<h2>" . $this->header . "</h2>" : NULL;
+            // Section Anchor
+            $content .= "<a id='ext-content-" . $this->order . "'></a>";
             
-            $sql = $wpdb->prepare("SELECT * FROM `" . $wpdb->prefix . self::$table . "` WHERE `post_id` = %d AND `external_content_id` = %d", $this->post_id, $this->id);
-            $row = $wpdb->get_row($sql);
-            
-            if($row)
+            if($this->content == NULL)
             {
-                $this->content = $row->content;
-                $this->date = $row->date;
-                $this->url = $row->url;
+                global $wpdb;
+                
+                $sql = $wpdb->prepare("SELECT * FROM `" . $wpdb->prefix . self::$table . "` WHERE `post_id` = %d AND `external_content_id` = %d", $this->post_id, $this->id);
+                $row = $wpdb->get_row($sql);
+                
+                if($row)
+                {
+                    $this->content = $row->content;
+                    $this->date = $row->date;
+                    $this->url = $row->url;
+                }
             }
+            // Section Content
+            $content .= $this->content;
+            
+            // Section Comment
+            $content .= "<!-- Copied: " . date("m/d/Y H:i:s", strtotime($this->date)) . "-->\n<!-- URL: " . $this->url . " -->";
+            return $content;
         }
-        // Section Content
-        $content .= $this->content;
-        
-        // Section Comment
-        $content .= "<!-- Copied: " . date("m/d/Y H:i:s", strtotime($this->date)) . "-->\n<!-- URL: " . $this->url . " -->";
-        return $content;
     }
     /**
      * Tag Name

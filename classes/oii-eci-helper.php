@@ -86,6 +86,11 @@ class OII_ECI_Helper {
                 if ($acontent->content) {
                     $timestamp = date("m/d/Y h:i:s");
                     $prep = "<!-- Migrated: " . $timestamp . " --><!-- URL: " . $content->url . " -->";
+                    // Section Header
+                    $prep .= ($acontent->header) ? "<h2>" . $acontent->header . "</h2>" : NULL;
+                    // Section Anchor
+                    $prep .= "<a id='ext-content-" . $acontent->order . "'></a>";
+                    
                     $acontent->content = $prep.$acontent->content;
                     $content .= $acontent->content;
                     
