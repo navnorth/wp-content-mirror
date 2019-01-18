@@ -239,8 +239,13 @@ class OII_ECI_External_Content {
     {
         $html = @file_get_contents($this->url);
         
-        if($html === FALSE)
-            throw new Exception("Unable to retrieve contents from " . $this->url);
+        $html = $this->curl_extract($this->url);
+        
+        if($html === FALSE){
+            $html = $this->curl_extract($this->url);
+            if (!$html || strlen(trim($html))<=0)
+                throw new Exception("Unable to retrieve contents from " . $this->url);
+        }
         
         $html = mb_convert_encoding($html, "HTML-ENTITIES", "UTF-8");
         $html = trim(preg_replace("/>(\\s|\\n|\\r)+</", "><", $html));
@@ -734,5 +739,22 @@ class OII_ECI_External_Content {
         
         return $url;
         
+    }
+    
+    private function curl_extract($url) {
+        if (!function_exists('curl_init')){ 
+            die('CURL is not installed!');
+        }
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        
+        $output = curl_exec($ch);
+        curl_close($ch);
+        
+        return $output;
     }
 }
