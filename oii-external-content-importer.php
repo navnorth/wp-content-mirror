@@ -39,6 +39,7 @@ include_once(OII_ECI_PATH . "/includes/oii-eci-metabox.php");
 include_once(OII_ECI_PATH . "/classes/oii-eci-external-content.php");
 include_once(OII_ECI_PATH . "/classes/oii-eci-scraper.php");
 include_once(OII_ECI_PATH . "/classes/oii-eci-helper.php");
+include_once(OII_ECI_PATH . "/classes/oii-eci-csv-importer.php");
 
 $_option = get_option(OII_ECI_Settings_Page::$option_name);
 $_debug = $_option['debug'];

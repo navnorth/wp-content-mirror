@@ -1,0 +1,44 @@
+.oese-csv-importer .form-section{
+    margin: 100px 300px 100px 300px;
+    border: 1px solid;
+    padding: 30px 30px 30px 30px;
+}    
+
+.oese-csv-importer .fixed_header{
+    width: 62%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    border: 1px solid;
+}
+.oese-csv-importer .error_message{
+    color: #f44336;
+    padding-bottom: 12px;
+    font-size: 14px;
+}
+.oese-csv-importer .results_table{
+	margin-left: 300px;
+}
+
+.oese-csv-importer .fixed_header tbody{
+  display:block;
+  width: 100%;
+  overflow: auto;
+  height: auto;
+  padding: 10px 10px 10px 10px
+}
+
+.oese-csv-importer .fixed_header thead tr {
+   display: block;
+   font-size: 15px;
+}
+
+.oese-csv-importer .fixed_header thead {
+  background: #0073aa;
+  color:#fff;
+}
+
+.oese-csv-importer .fixed_header th, .oese-csv-importer .fixed_header td {
+  padding: 5px;
+  text-align: left;
+  width: 230px;
+}
