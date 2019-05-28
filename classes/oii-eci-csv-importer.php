@@ -17,21 +17,31 @@ class OII_ECI_Csv_Impoter
       }
  
     public function csv_import_form(){
-      $samplecsvfile = plugins_url('/assets/sample.csv', dirname(__FILE__));
+      $samplecsvfile = plugins_url('/assets/eci-import-sample.csv', dirname(__FILE__));
       $ajaxload = plugins_url('/assets/ajax-load.gif', dirname(__FILE__));
 
       echo '<div class="wrap">
             <div class="oese-csv-importer">
                 <h2>WP External Importer</h2>
                   <div class="form-section">
-                    <div class="error_message"></div>  
-                    <form name="wp_importer" class="importer"  method="post" enctype="multipart/form-data">
-                      <input type="file" accept=".csv" name="fileToUpload" id="fileToUpload">
-                      <input type="button" id="csv_upload" value="Upload Csv" name="submit">
-                       <img style="display: none;" class="ajaxload" width="65" src="'.$ajaxload.'">
-                    </form>
-                   
-                    <a class="csv_file" href="'.$samplecsvfile.'">Download sample csv</a>  
+                    <div class="container">
+                        <div class="error_message"></div>  
+                        <form name="wp_importer" class="importer"  method="post" enctype="multipart/form-data">
+                          <div class="cfile">
+                           Choose File
+                            <input type="file" accept=".csv" name="fileToUpload" id="fileToUpload">
+                          </div> 
+                          <div class="cfile-upload"> 
+                            <input type="button" class="button button-primary button-large" id="csv_upload" value="Upload Csv" name="submit">
+                          </div>
+                           
+                        </form>
+                    </div> 
+                      <div class="c_file_name"></div>
+                      <img style="display: none;" class="ajaxload" width="65" src="'.$ajaxload.'">
+                      <div class="csv-sec">
+                        <a class="csv_file" href="'.$samplecsvfile.'">Sample Csv</a>  
+                      </div>
                   </div>   
                   <div class="results_table" style="display: none;">
                     <p class="page_count"></p>
@@ -102,7 +112,7 @@ class OII_ECI_Csv_Impoter
       return $strLeft;
     }
 
-    public function createNewPage($pageName,$pageContent,$templateName){
+    public function createNewPage($pageName,$pageContent,$templateName,$pageCategory,$pageTag){
         $post      = get_page_by_title($pageName, 'OBJECT', 'page');
         $post_id   = $post->ID;
 
@@ -116,15 +126,50 @@ class OII_ECI_Csv_Impoter
               'post_author'   => '1',
               'page_template' => ''
           );
-          $pageId = wp_insert_post( $post_data, $error_obj );
+          $pageId = wp_insert_post( $post_data, $error_obj);
+
+          /***Adding Category for page****/
+
+          if($pageCategory){
+              $pageCatArray = explode("|",$pageCategory);
+              //print_r($mediaCatArray);
+              foreach ($pageCatArray as $key => $catSlug) {
+                  $catSlug = str_replace(' ', '', $catSlug);
+                  $pageCatObj =  get_category_by_slug($catSlug);
+                  if($pageCatObj){
+                    $catId = $pageCatObj->term_id;
+                  }
+                  else{
+                    $catId = wp_create_category($catSlug);
+                  } 
+                  wp_set_post_categories($pageId,array($catId),true);
+              }
+              
+          }
+
+          /***Adding Tags for page****/
+          
+          if($pageTag){
+            $pageTagArray = explode("|",$pageTag);
+              foreach ($pageTagArray as $key => $tagSlug) {
+                $tagSlug = str_replace(' ', '', $tagSlug);
+                  $tagIdObj = term_exists($tagSlug,"post_tag");
+                  if($tagIdObj['term_id']){
+                    wp_set_post_tags($pageId,array($tagSlug),true);
+                  }
+                  else{
+                    $termObj = wp_insert_term($tagSlug,"post_tag");
+                    if($termObj){
+                      wp_set_post_tags($pageId,array($tagSlug),true);
+                    }
+                  }
+              }    
+          }
 
           update_post_meta( $pageId, '_wp_page_template', $template);
           $editLink = get_edit_post_link($pageId);
           return array('page_title' =>$pageName,'edit'=>$editLink);
         }
-        // else{
-        //   return "page with the name exists";
-        // }  
     }
 
 
@@ -138,7 +183,9 @@ class OII_ECI_Csv_Impoter
           $pageStartCode = $csvVal[1];  
           $pageEndCode = $csvVal[2];  
           $pageTitle = $csvVal[3];
-          $pageTemplate = $csvVal[4];  
+          $pageTemplate = $csvVal[4];
+          $pageCategory = $csvVal[5];
+          $pageTag = $csvVal[6];  
           
           $post      = get_page_by_title($pageTitle, 'OBJECT', 'page');
           $post_id   = $post->ID;
@@ -146,7 +193,7 @@ class OII_ECI_Csv_Impoter
             $filteredHtml = $this->getFilteredContentHtml($pageUrl,$pageStartCode,$pageEndCode);
             
             if($filteredHtml){
-              $output[] = $this->createNewPage($pageTitle,$filteredHtml,$pageTemplate);
+              $output[] = $this->createNewPage($pageTitle,$filteredHtml,$pageTemplate,$pageCategory,$pageTag);
             }
           }  
       }
