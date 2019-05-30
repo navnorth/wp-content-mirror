@@ -106,17 +106,16 @@ class OII_ECI_Csv_Impoter
           curl_close($ch);
       }  
 
+      $pTitle = preg_match('/<title[^>]*>(.*?)<\/title>/ims', $htmlPageContent, $matches) ? $matches[1] : null;
+
       $stringRight = $this->removeEverythingBefore($htmlPageContent,$startCode);
       $strLeft = $this->removeEverythingAfter($stringRight,$endCode);
 
-      return $strLeft;
+      return array('page-title' =>$pTitle , 'page-content'=>$strLeft);
     }
 
-    public function createNewPage($pageName,$pageContent,$templateName,$pageCategory,$pageTag){
-        $post      = get_page_by_title($pageName, 'OBJECT', 'page');
-        $post_id   = $post->ID;
-
-        if(!$post_id){
+    public function createNewPage($pageName,$pageContent,$templateName,$pageCategory,$pageTag,$parentId){
+      
           $template = "page-templates/".$templateName."-template.php";
           $post_data = array(
               'post_title'    => wp_strip_all_tags($pageName),
@@ -127,6 +126,19 @@ class OII_ECI_Csv_Impoter
               'page_template' => ''
           );
           $pageId = wp_insert_post( $post_data, $error_obj);
+
+          /**updating post parent **/
+
+            if($pageId){
+               if( get_post_status ($parentId)){
+                  wp_update_post(
+                      array(
+                          'ID' => $pageId, 
+                          'post_parent' => $parentId
+                      )
+                  );
+               }  
+            }  
 
           /***Adding Category for page****/
 
@@ -169,7 +181,7 @@ class OII_ECI_Csv_Impoter
           update_post_meta( $pageId, '_wp_page_template', $template);
           $editLink = get_edit_post_link($pageId);
           return array('page_title' =>$pageName,'edit'=>$editLink);
-        }
+        
     }
 
 
@@ -178,24 +190,22 @@ class OII_ECI_Csv_Impoter
       $csvAsArray = array_map('str_getcsv', file($csvImportFile));
       array_shift($csvAsArray);
       $output = array();
-      foreach ($csvAsArray as $key => $csvVal) {
+      foreach ($csvAsArray as $key => $csvVal) { 
           $pageUrl = $csvVal[0];
           $pageStartCode = $csvVal[1];  
           $pageEndCode = $csvVal[2];  
-          $pageTitle = $csvVal[3];
-          $pageTemplate = $csvVal[4];
-          $pageCategory = $csvVal[5];
-          $pageTag = $csvVal[6];  
+          //$pageTitle = $csvVal[3];
+          $pageTemplate = $csvVal[3];
+          $pageCategory = $csvVal[4];
+          $pageTag = $csvVal[5];  
+          $parentId = $csvVal[6];  
           
-          $post      = get_page_by_title($pageTitle, 'OBJECT', 'page');
-          $post_id   = $post->ID;
-          if(!$post_id){
             $filteredHtml = $this->getFilteredContentHtml($pageUrl,$pageStartCode,$pageEndCode);
-            
+
             if($filteredHtml){
-              $output[] = $this->createNewPage($pageTitle,$filteredHtml,$pageTemplate,$pageCategory,$pageTag);
+              $output[] = $this->createNewPage($filteredHtml['page-title'],$filteredHtml['page-content'],$pageTemplate,$pageCategory,$pageTag,$parentId);
             }
-          }  
+ 
       }
     
       wp_send_json($output);
