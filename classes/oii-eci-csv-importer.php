@@ -180,7 +180,7 @@ class OII_ECI_Csv_Impoter
 
           update_post_meta( $pageId, '_wp_page_template', $template);
           $editLink = get_edit_post_link($pageId);
-          return array('page_title' =>$pageName,'edit'=>$editLink);
+          return array('page_title' =>$pageName,'edit_link'=>$editLink);
         
     }
 
@@ -200,11 +200,13 @@ class OII_ECI_Csv_Impoter
           $pageTag = $csvVal[5];  
           $parentId = $csvVal[6];  
           
+          if($pageUrl){
             $filteredHtml = $this->getFilteredContentHtml($pageUrl,$pageStartCode,$pageEndCode);
 
             if($filteredHtml){
               $output[] = $this->createNewPage($filteredHtml['page-title'],$filteredHtml['page-content'],$pageTemplate,$pageCategory,$pageTag,$parentId);
             }
+          }  
  
       }
     
