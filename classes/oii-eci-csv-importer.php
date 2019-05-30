@@ -128,8 +128,8 @@ class OII_ECI_Csv_Impoter
           $pageId = wp_insert_post( $post_data, $error_obj);
 
           /**updating post parent **/
-
-            if($pageId){
+          
+            if($parentId){
                if( get_post_status ($parentId)){
                   wp_update_post(
                       array(
