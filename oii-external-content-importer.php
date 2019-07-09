@@ -3,7 +3,7 @@
  Plugin Name:  External Content Mirror
  Plugin URI:   https://www.navigationnorth.com/solutions/wordpress/content-mirror-plugin
  Description:  Automatically import HTML content from external web pages and append to existing WP pages.
- Version:      0.8.8
+ Version:      0.9.0
  Author:       Navigation North
  Author URI:   https://www.navigationnorth.com
  Text Domain:  wp-stories-posts
@@ -32,7 +32,7 @@ define("OII_ECI_PLUGIN_DOMAIN", "oii-external-content-importer");
 define("OII_ECI_TEMPLATE_DIRECTORY", "oii-eci-template");
 define("OII_ECI_PLUGIN_NAME", "External Content Mirror");
 define("OII_ECI_PLUGIN_INFO", "https://www.navigationnorth.com/solutions/wordpress/content-mirror-plugin");
-define("OII_ECI_VERSION", "0.8.8");
+define("OII_ECI_VERSION", "0.9.0");
 
 include_once(OII_ECI_PATH . "/includes/oii-eci-settings-page.php");
 include_once(OII_ECI_PATH . "/includes/oii-eci-metabox.php");
