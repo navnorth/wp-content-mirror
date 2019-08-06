@@ -114,7 +114,7 @@ class OII_ECI_Csv_Impoter
       return array('page-title' =>$pTitle , 'page-content'=>$strLeft);
     }
 
-    public function createNewPage($pageName,$pageContent,$templateName,$pageCategory,$pageTag,$parentId, $metaDescription, $archiveDate, $pubID){
+    public function createNewPage($pageName,$pageContent,$templateName,$pageCategory,$pageTag,$parentId, $metaDescription, $archiveDate, $pubID, $pageUrl){
       
           $template = "page-templates/".$templateName."-template.php";
           $post_data = array(
@@ -163,6 +163,7 @@ class OII_ECI_Csv_Impoter
           
           if($pageTag){
                $pageTagArray = explode(";",$pageTag);
+               $pageTagArray = array_unique($pageTagArray);
               foreach ($pageTagArray as $key => $tagSlug) {
                 $tagSlug = str_replace(' ', '', $tagSlug);
                   $tagIdObj = term_exists($tagSlug,"post_tag");
@@ -196,6 +197,11 @@ class OII_ECI_Csv_Impoter
                update_field('publication_id', $pubID, $pageId);
          }
          
+         if ($pageUrl){
+            if (function_exists('update_field'))
+               update_field('source_URL', $pageUrl, $pageId);
+         }
+         
          $editLink = get_edit_post_link($pageId);
          return array('page_title' =>$pageName,'edit_link'=>$editLink);
         
@@ -211,20 +217,23 @@ class OII_ECI_Csv_Impoter
           $pageUrl = $csvVal[0];
           $pageStartCode = $csvVal[1];  
           $pageEndCode = $csvVal[2];  
-          //$pageTitle = $csvVal[3];
-          $pageTemplate = $csvVal[3];
-          $pageCategory = $csvVal[4];
-          $pageTag = $csvVal[5];  
-          $parentId = $csvVal[6];
-          $meta_description = $csvVal[7];
-          $archive_date = $csvVal[8];
-          $publication_id = $csvVal[9];
+          $pageTitle = $csvVal[3];
+          $pageTemplate = $csvVal[4];
+          $pageCategory = $csvVal[5];
+          $pageTag = $csvVal[6];  
+          $parentId = $csvVal[7];
+          $meta_description = $csvVal[8];
+          $archive_date = $csvVal[9];
+          $publication_id = $csvVal[10];
           
           if($pageUrl){
             $filteredHtml = $this->getFilteredContentHtml($pageUrl,$pageStartCode,$pageEndCode);
+         
+          if ($pageTitle=="")
+            $pageTitle = $filteredHtml['page-title'];
 
             if($filteredHtml){
-              $output[] = $this->createNewPage($filteredHtml['page-title'],$filteredHtml['page-content'],$pageTemplate,$pageCategory,$pageTag,$parentId, $meta_description, $archive_date, $publication_id);
+              $output[] = $this->createNewPage($pageTitle,$filteredHtml['page-content'],$pageTemplate,$pageCategory,$pageTag,$parentId, $meta_description, $archive_date, $publication_id, $pageUrl);
             }
           } 
  
