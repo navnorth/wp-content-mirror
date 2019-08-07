@@ -1,4 +1,5 @@
 <?php
+
 class OII_ECI_Csv_Impoter  
 {
    function __construct(){
@@ -103,6 +104,13 @@ class OII_ECI_Csv_Impoter
           
           $output = curl_exec($ch);
           $htmlPageContent = $output;
+          
+         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+         if($httpCode == 404) {
+             $this->insert_failed_import($pageUrl);
+             return false;
+         }
+          
           curl_close($ch);
       }  
 
@@ -242,12 +250,20 @@ class OII_ECI_Csv_Impoter
       die();
 
     }
+    
+    private function insert_failed_import($url){
+      global $wpdb;
+      $wpdb->insert($wpdb->prefix."eci_failed_imports",
+                    array('Url' => $url),
+                    array('%s')
+      );
+    }
 
 }
 
 if(class_exists('OII_ECI_Csv_Impoter')){
     $OII_ECI_Csv_Impoter = new OII_ECI_Csv_Impoter();
     $OII_ECI_Csv_Impoter->register_hooks();
-} 
+}
 
 ?>

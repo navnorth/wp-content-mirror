@@ -40,6 +40,7 @@ include_once(OII_ECI_PATH . "/classes/oii-eci-external-content.php");
 include_once(OII_ECI_PATH . "/classes/oii-eci-scraper.php");
 include_once(OII_ECI_PATH . "/classes/oii-eci-helper.php");
 include_once(OII_ECI_PATH . "/classes/oii-eci-csv-importer.php");
+include_once(OII_ECI_PATH . "/classes/oii-eci-failed-imports-list.php");
 
 $_option = get_option(OII_ECI_Settings_Page::$option_name);
 $_debug = $_option['debug'];
@@ -73,6 +74,17 @@ function activate_oii_eci_plugin()
             PRIMARY KEY (`id`)
           ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;";
 	dbDelta($sql);
+    
+    // Failed Imports table
+    $table_name = $wpdb->prefix . "eci_failed_imports";
+    $sql = "CREATE TABLE IF NOT EXISTS `".$table_name."` (
+	    `Id` int(11) NOT NULL AUTO_INCREMENT,
+	    `Url` varchar(1000) NOT NULL,
+	    `importDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	    `Imported` tinyint(1) NOT NULL DEFAULT '0',
+	    PRIMARY KEY (`Id`)
+	  ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;";
+    dbDelta($sql);
 }
 
 /**
@@ -138,3 +150,28 @@ function external_content_importer_cron_job()
 }
 // External Content Importer Cron Job Hook
 add_action(OII_ECI_Settings_Page::$cron_action_hook, "external_content_importer_cron_job");
+
+function create_menu_option(){
+      add_options_page( 'ECI Failed Imports','ECI Failed Imports','manage_options','eci-failed-reports','eci_display_report');
+}
+add_action('admin_menu', 'create_menu_option', 30);
+
+function eci_display_report(){
+    ?>
+    <div class="wrap">
+	<h1>Failed Imports List</h1>
+    <?php
+   if(class_exists('Failed_Imports_List_Table')){
+      $failed_imports_list = new Failed_Imports_List_Table();
+      $failed_imports_list->prepare_items();
+      $failed_imports_list->display();
+   }
+   ?>
+   </div>
+   <?php
+}
+
+function hide_failed_imports_menu(){
+     remove_submenu_page( 'options-general.php', 'eci-failed-reports' );
+}
+add_action('admin_init','hide_failed_imports_menu');
