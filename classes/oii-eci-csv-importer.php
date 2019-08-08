@@ -1,4 +1,5 @@
 <?php
+require_once(OII_ECI_PATH . "classes/oii-eci-external-content.php");
 
 class OII_ECI_Csv_Impoter  
 {
@@ -118,6 +119,11 @@ class OII_ECI_Csv_Impoter
 
       $stringRight = $this->removeEverythingBefore($htmlPageContent,$startCode);
       $strLeft = $this->removeEverythingAfter($stringRight,$endCode);
+      
+      // Apply OII ECI External Content Replace
+      $external_content = new OII_ECI_External_Content;
+      $strLeft = $external_content->_replace_relative_links($strLeft, $pageUrl);
+      $strLeft = $external_content->_apply_format($strLeft);
 
       return array('page-title' =>$pTitle , 'page-content'=>$strLeft);
     }

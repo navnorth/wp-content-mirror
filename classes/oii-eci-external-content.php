@@ -380,7 +380,7 @@ class OII_ECI_External_Content {
      * 
      * @return string The formatted content.
      */
-    private function _apply_format($content = NULL)
+    public function _apply_format($content = NULL)
     {
         require_once(OII_ECI_PATH . "includes/oii-eci-settings-page.php");
         $option = get_option(OII_ECI_Settings_Page::$option_name);
@@ -680,7 +680,7 @@ class OII_ECI_External_Content {
      * Replace Relative Links
      *
      **/
-    private function _replace_relative_links($html, $repUrl){
+    public function _replace_relative_links($html, $repUrl){
         
         $match = array();
         
