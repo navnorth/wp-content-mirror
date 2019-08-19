@@ -256,13 +256,18 @@ class OII_ECI_Csv_Impoter
 
    }
     
-    private function insert_failed_import($url){
+   private function insert_failed_import($url){
       global $wpdb;
-      $wpdb->insert($wpdb->prefix."eci_failed_imports",
-                    array('Url' => $url),
-                    array('%s')
-      );
-    }
+      
+      $failed_url_exists = $wpdb->get_row( "SELECT * FROM ".$wpdb->prefix."eci_failed_imports WHERE Url = '". $url ."'" );
+      
+      if ( !$failed_url_exists ) {
+         $wpdb->insert($wpdb->prefix."eci_failed_imports",
+                       array('Url' => $url),
+                       array('%s')
+         );
+      }
+   }
 
 }
 
