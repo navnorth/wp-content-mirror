@@ -108,11 +108,11 @@ class OII_ECI_Csv_Impoter
           
          $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
          if($httpCode !== 200) {
-             $this->insert_failed_import($pageUrl);
-             return false;
+            $this->insert_failed_import($pageUrl);
+            //return false;
          }
           
-          curl_close($ch);
+         curl_close($ch);
       }  
 
       $pTitle = preg_match('/<title[^>]*>(.*?)<\/title>/ims', $htmlPageContent, $matches) ? $matches[1] : null;
@@ -179,7 +179,6 @@ class OII_ECI_Csv_Impoter
                $pageTagArray = explode(";",$pageTag);
                $pageTagArray = array_unique($pageTagArray);
               foreach ($pageTagArray as $key => $tagSlug) {
-                $tagSlug = str_replace(' ', '', $tagSlug);
                   $tagIdObj = term_exists($tagSlug,"post_tag");
                   if($tagIdObj['term_id']){
                     wp_set_post_tags($pageId,array($tagSlug),true);
@@ -222,40 +221,40 @@ class OII_ECI_Csv_Impoter
     }
 
 
-    public function my_ajax_action_function(){
+   public function my_ajax_action_function(){
       $csvImportFile = $_FILES['file']['tmp_name'];
       $csvAsArray = array_map('str_getcsv', file($csvImportFile));
       array_shift($csvAsArray);
       $output = array();
       foreach ($csvAsArray as $key => $csvVal) {
-          $pageUrl = $csvVal[0];
-          $pageStartCode = $csvVal[1];  
-          $pageEndCode = $csvVal[2];  
-          $pageTitle = $csvVal[3];
-          $pageTemplate = $csvVal[4];
-          $pageCategory = $csvVal[5];
-          $pageTag = $csvVal[6];  
-          $parentId = $csvVal[7];
-          $meta_description = $csvVal[8];
-          $archive_date = $csvVal[9];
-          $publication_id = $csvVal[10];
-          
-          if($pageUrl){
-            $filteredHtml = $this->getFilteredContentHtml($pageUrl,$pageStartCode,$pageEndCode);
+         $pageUrl = $csvVal[0];
+         $pageStartCode = $csvVal[1];  
+         $pageEndCode = $csvVal[2];  
+         $pageTitle = $csvVal[3];
+         $pageTemplate = $csvVal[4];
+         $pageCategory = $csvVal[5];
+         $pageTag = $csvVal[6];  
+         $parentId = $csvVal[7];
+         $meta_description = $csvVal[8];
+         $archive_date = $csvVal[9];
+         $publication_id = $csvVal[10];
          
-          if ($pageTitle=="")
+         if($pageUrl){
+            $filteredHtml = $this->getFilteredContentHtml($pageUrl,$pageStartCode,$pageEndCode);
+        
+         if ($pageTitle=="")
             $pageTitle = $filteredHtml['page-title'];
 
             if($filteredHtml){
               $output[] = $this->createNewPage($pageTitle,$filteredHtml['page-content'],$pageTemplate,$pageCategory,$pageTag,$parentId, $meta_description, $archive_date, $publication_id, $pageUrl);
             }
-          } 
+         } 
  
       }
       wp_send_json($output);
       die();
 
-    }
+   }
     
     private function insert_failed_import($url){
       global $wpdb;
