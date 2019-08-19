@@ -160,7 +160,7 @@ class OII_ECI_Csv_Impoter
               $pageCatArray = explode("|",$pageCategory);
               //print_r($mediaCatArray);
               foreach ($pageCatArray as $key => $catSlug) {
-                  $catSlug = str_replace(' ', '', $catSlug);
+                  //$catSlug = str_replace(' ', '', $catSlug);
                   $pageCatObj =  get_category_by_slug($catSlug);
                   if($pageCatObj){
                     $catId = $pageCatObj->term_id;
