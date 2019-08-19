@@ -107,7 +107,7 @@ class OII_ECI_Csv_Impoter
           $htmlPageContent = $output;
           
          $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-         if($httpCode == 404) {
+         if($httpCode !== 200) {
              $this->insert_failed_import($pageUrl);
              return false;
          }
