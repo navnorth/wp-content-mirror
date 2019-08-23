@@ -1,10 +1,10 @@
 <?php
 require_once(OII_ECI_PATH . "classes/oii-eci-external-content.php");
 
-class OII_ECI_Csv_Impoter  
+class OII_ECI_Csv_Impoter
 {
    function __construct(){
-      
+
    }
 
 
@@ -17,7 +17,7 @@ class OII_ECI_Csv_Impoter
     public function create_menu_option(){
         add_options_page( 'Csv External Importer','Csv External Importer','manage_options','csv-importer.php',array( $this, 'csv_import_form'));
       }
- 
+
     public function csv_import_form(){
       $samplecsvfile = plugins_url('/assets/eci-import-sample.csv', dirname(__FILE__));
       $ajaxload = plugins_url('/assets/ajax-load.gif', dirname(__FILE__));
@@ -27,24 +27,24 @@ class OII_ECI_Csv_Impoter
                 <h2>WP External Importer</h2>
                   <div class="form-section">
                     <div class="container">
-                        <div class="error_message"></div>  
+                        <div class="error_message"></div>
                         <form name="wp_importer" class="importer"  method="post" enctype="multipart/form-data">
                           <div class="cfile">
                            Choose File
                             <input type="file" accept=".csv" name="fileToUpload" id="fileToUpload">
-                          </div> 
-                          <div class="cfile-upload"> 
+                          </div>
+                          <div class="cfile-upload">
                             <input type="button" class="button button-primary button-large" id="csv_upload" value="Upload Csv" name="submit">
                           </div>
-                           
+
                         </form>
-                    </div> 
+                    </div>
                       <div class="c_file_name"></div>
                       <img style="display: none;" class="ajaxload" width="65" src="'.$ajaxload.'">
                       <div class="csv-sec">
-                        <a class="csv_file" href="'.$samplecsvfile.'">Sample Csv</a>  
+                        <a class="csv_file" href="'.$samplecsvfile.'">Sample Csv</a>
                       </div>
-                  </div>   
+                  </div>
                   <div class="results_table" style="display: none;">
                     <p class="page_count"></p>
                     <table class="fixed_header" id="page_result">
@@ -53,11 +53,11 @@ class OII_ECI_Csv_Impoter
                           <th>Page Name</th>
                           <th>Action</th>
                         </tr>
-                       </thead>  
+                       </thead>
                     </table>
 
                   </div>
-               </div>       
+               </div>
             </div>';
     }
 
@@ -81,7 +81,7 @@ class OII_ECI_Csv_Impoter
         return $pos !== FALSE
         ? substr($in, 0, strpos($in, $after))
         :"";
-    }  
+    }
 
 
     public function getFilteredContentHtml($pageUrl,$startCode,$endCode){
@@ -90,36 +90,36 @@ class OII_ECI_Csv_Impoter
             "verify_peer"=>false,
             "verify_peer_name"=>false,
         ),
-      );  
+      );
       $htmlPageContent = file_get_contents($pageUrl, false, stream_context_create($arrContextOptions));
       if($htmlPageContent === FALSE){
-          if (!function_exists('curl_init')){ 
+          if (!function_exists('curl_init')){
               die('CURL is not installed!');
           }
-          
+
           $ch = curl_init();
           curl_setopt($ch, CURLOPT_URL, $pageUrl);
           curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
           curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
           curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-          
+
           $output = curl_exec($ch);
           $htmlPageContent = $output;
-          
+
          $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
          if($httpCode !== 200) {
             $this->insert_failed_import($pageUrl);
             //return false;
          }
-          
+
          curl_close($ch);
-      }  
+      }
 
       $pTitle = preg_match('/<title[^>]*>(.*?)<\/title>/ims', $htmlPageContent, $matches) ? $matches[1] : null;
 
       $stringRight = $this->removeEverythingBefore($htmlPageContent,$startCode);
       $strLeft = $this->removeEverythingAfter($stringRight,$endCode);
-      
+
       // Apply OII ECI External Content Replace
       $external_content = new OII_ECI_External_Content;
       $strLeft = $external_content->_replace_relative_links($strLeft, $pageUrl);
@@ -129,30 +129,37 @@ class OII_ECI_Csv_Impoter
     }
 
     public function createNewPage($pageName,$pageContent,$templateName,$pageCategory,$pageTag,$parentId, $metaDescription, $archiveDate, $pubID, $pageUrl){
-      
+
           $template = "page-templates/".$templateName."-template.php";
+
+          /** if content is empty, set page status to Draft **/
+          $pageStatus = 'publish';
+          if( empty($pageContent) || !empty($archiveDate) )  {
+              $pageStatus = 'draft';
+          }
+
           $post_data = array(
               'post_title'    => wp_strip_all_tags($pageName),
               'post_content'  => $pageContent,
-              'post_status'   => 'publish',
+              'post_status'   => $pageStatus,
               'post_type'     => 'page',
               'post_author'   => '1',
               'page_template' => ''
           );
-          $pageId = wp_insert_post( $post_data, $error_obj);
+          $pageId = wp_insert_post( $post_data, $error_obj );
 
           /**updating post parent **/
-          
+
             if($parentId){
                if( get_post_status ($parentId)){
                   wp_update_post(
                       array(
-                          'ID' => $pageId, 
+                          'ID' => $pageId,
                           'post_parent' => $parentId
                       )
                   );
-               }  
-            }  
+               }
+            }
 
           /***Adding Category for page****/
 
@@ -167,14 +174,14 @@ class OII_ECI_Csv_Impoter
                   }
                   else{
                     $catId = wp_create_category($catSlug);
-                  } 
+                  }
                   wp_set_post_categories($pageId,array($catId),true);
               }
-              
+
           }
 
           /***Adding Tags for page****/
-          
+
           if($pageTag){
                $pageTagArray = explode(";",$pageTag);
                $pageTagArray = array_unique($pageTagArray);
@@ -189,18 +196,18 @@ class OII_ECI_Csv_Impoter
                       wp_set_post_tags($pageId,array($tagSlug),true);
                     }
                   }
-              }    
+              }
           }
 
          update_post_meta( $pageId, '_wp_page_template', $template);
-         
-         // check if Yoast is installed and active 
+
+         // check if Yoast is installed and active
          if(in_array('wordpress-seo/wp-seo.php', apply_filters('active_plugins', get_option('active_plugins')))){
             // add Yoast meta description if set
             if ($metaDescription)
                update_post_meta( $pageId, '_yoast_wpseo_metadesc', $metaDescription);
          }
-          
+
          if ($archiveDate){
             if (function_exists('update_field'))
                update_field('archive_date', $archiveDate, $pageId);
@@ -209,15 +216,15 @@ class OII_ECI_Csv_Impoter
             if (function_exists('update_field'))
                update_field('publication_id', $pubID, $pageId);
          }
-         
+
          if ($pageUrl){
             if (function_exists('update_field'))
                update_field('source_URL', $pageUrl, $pageId);
          }
-         
+
          $editLink = get_edit_post_link($pageId);
          return array('page_title' =>$pageName,'edit_link'=>$editLink);
-        
+
     }
 
 
@@ -228,39 +235,39 @@ class OII_ECI_Csv_Impoter
       $output = array();
       foreach ($csvAsArray as $key => $csvVal) {
          $pageUrl = $csvVal[0];
-         $pageStartCode = $csvVal[1];  
-         $pageEndCode = $csvVal[2];  
+         $pageStartCode = $csvVal[1];
+         $pageEndCode = $csvVal[2];
          $pageTitle = $csvVal[3];
          $pageTemplate = $csvVal[4];
          $pageCategory = $csvVal[5];
-         $pageTag = $csvVal[6];  
+         $pageTag = $csvVal[6];
          $parentId = $csvVal[7];
          $meta_description = $csvVal[8];
          $archive_date = $csvVal[9];
          $publication_id = $csvVal[10];
-         
+
          if($pageUrl){
             $filteredHtml = $this->getFilteredContentHtml($pageUrl,$pageStartCode,$pageEndCode);
-        
+
          if ($pageTitle=="")
             $pageTitle = $filteredHtml['page-title'];
 
             if($filteredHtml){
               $output[] = $this->createNewPage($pageTitle,$filteredHtml['page-content'],$pageTemplate,$pageCategory,$pageTag,$parentId, $meta_description, $archive_date, $publication_id, $pageUrl);
             }
-         } 
- 
+         }
+
       }
       wp_send_json($output);
       die();
 
    }
-    
+
    private function insert_failed_import($url){
       global $wpdb;
-      
+
       $failed_url_exists = $wpdb->get_row( "SELECT * FROM ".$wpdb->prefix."eci_failed_imports WHERE Url = '". $url ."'" );
-      
+
       if ( !$failed_url_exists ) {
          $wpdb->insert($wpdb->prefix."eci_failed_imports",
                        array('Url' => $url),
