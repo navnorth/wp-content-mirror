@@ -128,7 +128,7 @@ class OII_ECI_Csv_Impoter
       return array('page-title' =>$pTitle , 'page-content'=>$strLeft);
     }
 
-    public function createNewPage($pageName,$pageContent,$templateName,$pageCategory,$pageTag,$parentId, $metaDescription, $archiveDate, $pubID, $pageUrl){
+    public function createNewPage($pageName,$pageContent,$templateName,$pageCategory,$pageTag,$parentId, $metaDescription, $archiveDate, $pubID, $contactBox, $pageUrl){
 
           $template = "page-templates/".$templateName."-template.php";
 
@@ -208,18 +208,23 @@ class OII_ECI_Csv_Impoter
                update_post_meta( $pageId, '_yoast_wpseo_metadesc', $metaDescription);
          }
 
-         if ($archiveDate){
-            if (function_exists('update_field'))
+         // update ACF fields
+         if (function_exists('update_field')) {
+            if ($archiveDate){
                update_field('archive_date', $archiveDate, $pageId);
-         }
-         if ($pubID){
-            if (function_exists('update_field'))
+            }
+            if ($pubID){
                update_field('publication_id', $pubID, $pageId);
-         }
-
-         if ($pageUrl){
-            if (function_exists('update_field'))
+            }
+            if ($pageUrl){
                update_field('source_URL', $pageUrl, $pageId);
+            }
+            if ($contactBox){
+               update_field('ci_title', wp_strip_all_tags($pageName), $pageId);
+               update_field('ci_email', 'contact_form', $pageId);
+               update_field('ci_phone', '202-453-5563', $pageId);
+               update_field('ci_address', 'For Direct Support, Contact Us', $pageId);
+            }
          }
 
          $editLink = get_edit_post_link($pageId);
@@ -245,6 +250,7 @@ class OII_ECI_Csv_Impoter
          $meta_description = $csvVal[8];
          $archive_date = $csvVal[9];
          $publication_id = $csvVal[10];
+         $contactBox = $csvVal[11];
 
          if($pageUrl){
             $filteredHtml = $this->getFilteredContentHtml($pageUrl,$pageStartCode,$pageEndCode);
@@ -253,7 +259,7 @@ class OII_ECI_Csv_Impoter
             $pageTitle = $filteredHtml['page-title'];
 
             if($filteredHtml){
-              $output[] = $this->createNewPage($pageTitle,$filteredHtml['page-content'],$pageTemplate,$pageCategory,$pageTag,$parentId, $meta_description, $archive_date, $publication_id, $pageUrl);
+              $output[] = $this->createNewPage($pageTitle,$filteredHtml['page-content'],$pageTemplate,$pageCategory,$pageTag,$parentId, $meta_description, $archive_date, $publication_id, $contactBox, $pageUrl);
             }
          }
 
