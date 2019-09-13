@@ -15,7 +15,7 @@ class OII_ECI_Csv_Impoter
    }
 
     public function create_menu_option(){
-        add_options_page( 'Csv External Importer','Csv External Importer','manage_options','csv-importer.php',array( $this, 'csv_import_form'));
+        add_options_page( 'CSV Page Importer','CSV Page Importer','manage_options','csv-importer.php',array( $this, 'csv_import_form'));
       }
 
     public function csv_import_form(){
