@@ -16,7 +16,7 @@ class OII_ECI_Metabox {
     public function __construct()
     {
         $_option = get_option(OII_ECI_Settings_Page::$option_name);
-        $this->_debug = $_option['debug'];
+        $this->_debug = isset($_option['debug'])? $_option['debug']: false;
         add_action("load-post.php", array($this, "setup"));
         add_action("load-post-new.php", array($this, "setup"));
         add_action("wp_ajax_refresh_external_content", array($this, "refresh_external_content"));

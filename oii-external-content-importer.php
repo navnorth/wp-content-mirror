@@ -43,7 +43,7 @@ include_once(OII_ECI_PATH . "/classes/oii-eci-csv-importer.php");
 include_once(OII_ECI_PATH . "/classes/oii-eci-failed-imports-list.php");
 
 $_option = get_option(OII_ECI_Settings_Page::$option_name);
-$_debug = $_option['debug'];
+$_debug = isset($_option['debug'])? $_option['debug']: false;
 
 if(is_admin())
 {
